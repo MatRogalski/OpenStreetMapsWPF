@@ -27,7 +27,7 @@ namespace Itinero_test
 			var profile = Vehicle.Car.Fastest(); //the default OSM car profile
 
 
-			routerDb.AddContracted(profile);
+			//routerDb.AddContracted(profile); //dodawanie tego trwa bardzo długo, może się opłacać zrobić to przed wyznaczaniem wielu tras
 
 			Coordinate from = new Coordinate(52.255135f, 20.982435f);
 			Coordinate to = new Coordinate(53.111618f, 20.383173f);

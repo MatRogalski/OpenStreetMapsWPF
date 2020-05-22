@@ -20,7 +20,7 @@ using Itinero;
 using System.IO;
 using Itinero.IO.Osm;
 using Itinero.Osm.Vehicles;
-using Mapsui_mytest.Model;
+using MapDisplayApp.Model;
 using Newtonsoft.Json;
 using Itinero.LocalGeo;
 using Microsoft.Maps.MapControl.WPF;
@@ -28,7 +28,7 @@ using System.Globalization;
 using MapControl;
 using ViewModel;
 
-namespace Mapsui_mytest
+namespace MapDisplayApp
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml

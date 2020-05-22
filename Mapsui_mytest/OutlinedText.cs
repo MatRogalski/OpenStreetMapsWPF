@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace Mapsui_mytest
+namespace MapDisplayApp
 {
     public class OutlinedText : FrameworkElement
     {

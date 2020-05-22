@@ -1,4 +1,4 @@
-﻿namespace Mapsui_mytest.Model
+﻿namespace MapDisplayApp.Model
 {
 
 #pragma warning disable IDE1006 // Naming Styles

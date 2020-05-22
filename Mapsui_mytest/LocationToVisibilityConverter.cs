@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using MapControl;
 
-namespace Mapsui_mytest
+namespace MapDisplayApp
 {
     public class LocationToVisibilityConverter : IMultiValueConverter
     {

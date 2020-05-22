@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mapsui_mytest", "Mapsui_mytest\Mapsui_mytest.csproj", "{9C4B0B54-EDC2-4E23-BC5B-02B924177BEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapDisplayApp", "Mapsui_mytest\MapDisplayApp.csproj", "{9C4B0B54-EDC2-4E23-BC5B-02B924177BEB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itinero_test", "Itinero_test\Itinero_test.csproj", "{5C4C6492-D059-4060-8E38-755849FA946E}"
 EndProject

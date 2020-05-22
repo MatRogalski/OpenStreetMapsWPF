@@ -1,7 +1,7 @@
-﻿<Application x:Class="Mapsui_mytest.App"
+﻿<Application x:Class="MapDisplayApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Mapsui_mytest"
+             xmlns:local="clr-namespace:MapDisplayApp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

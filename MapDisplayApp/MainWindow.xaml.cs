@@ -1,5 +1,4 @@
-﻿using Mapsui;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,21 +12,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using BruTile.Predefined;
-using Mapsui.Layers;
-using Mapsui.Projection;
 using Itinero;
 using System.IO;
 using Itinero.IO.Osm;
 using Itinero.Osm.Vehicles;
-using MapDisplayApp.Model;
-using Newtonsoft.Json;
 using Itinero.LocalGeo;
-using Microsoft.Maps.MapControl.WPF;
 using System.Globalization;
 using MapControl;
 using ViewModel;
-
+using MapDisplayApp.Model;
+using Newtonsoft.Json;
 namespace MapDisplayApp
 {
 	/// <summary>
@@ -37,6 +31,12 @@ namespace MapDisplayApp
 	{
 		public MainWindow()
 		{
+			ImageLoader.HttpClient.DefaultRequestHeaders.Add("User-Agent", "XAML Map Control Test Application");
+			TileImageLoader.Cache = new MapControl.Caching.ImageFileCache(TileImageLoader.DefaultCacheFolder);
+			//TileImageLoader.Cache = new MapControl.Caching.FileDbCache(TileImageLoader.DefaultCacheFolder);
+			//TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
+			//TileImageLoader.Cache = null;
+
 			InitializeComponent();
 
 			ViewModel.Polyline polyline = GetMapControlPolyLine();
@@ -99,40 +99,40 @@ namespace MapDisplayApp
 		}
 
 
-		private static Microsoft.Maps.MapControl.WPF.LocationCollection GetListOfLocations()
-		{
-			string text = File.ReadAllText(@"C:\GIT\private\Mapsui_mytest\Itinero_test\bin\x64\Debug\route.geojson");
-			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
-			var locs = new Microsoft.Maps.MapControl.WPF.LocationCollection();
-			
-			foreach (Feature feature in parsed.features)
-			{ 
-				if(feature.geometry.coordinates[0] is Newtonsoft.Json.Linq.JArray startingCoordinates )
-				{
-					//
-					locs.Add(new Microsoft.Maps.MapControl.WPF.Location((float)startingCoordinates.Last(), (float)startingCoordinates.First()));
-				}
+		//private static Microsoft.Maps.MapControl.WPF.LocationCollection GetListOfLocations()
+		//{
+		//	string text = File.ReadAllText(@"C:\GIT\private\Mapsui_mytest\Itinero_test\bin\x64\Debug\route.geojson");
+		//	GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
+		//	var locs = new Microsoft.Maps.MapControl.WPF.LocationCollection();
 
-				///var startingPoint = new Point((double)startingCoordinates.Last(), (double)startingCoordinates.First());
+		//	foreach (Feature feature in parsed.features)
+		//	{
+		//		if (feature.geometry.coordinates[0] is Newtonsoft.Json.Linq.JArray startingCoordinates)
+		//		{
+		//			//
+		//			locs.Add(new Microsoft.Maps.MapControl.WPF.Location((float)startingCoordinates.Last(), (float)startingCoordinates.First()));
+		//		}
 
-				if(feature.geometry.coordinates[1] is Newtonsoft.Json.Linq.JArray endingCoordinates )
-				{
-					locs.Add(new Microsoft.Maps.MapControl.WPF.Location((float)endingCoordinates.Last(), (float)endingCoordinates.First()));
-				}
+		//		///var startingPoint = new Point((double)startingCoordinates.Last(), (double)startingCoordinates.First());
 
-				if(feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
-				{
-					locs.Add(new Microsoft.Maps.MapControl.WPF.Location(latitude, longitude));
-				}
-				//
-				///var endingPoint = new Point((float)endingCoordinates.Last(), (float)endingCoordinates.First());
+		//		if (feature.geometry.coordinates[1] is Newtonsoft.Json.Linq.JArray endingCoordinates)
+		//		{
+		//			locs.Add(new Microsoft.Maps.MapControl.WPF.Location((float)endingCoordinates.Last(), (float)endingCoordinates.First()));
+		//		}
 
-				//polyline.Points.Add(startingPoint);
-				//polyline.Points.Add(endingPoint);
-			}
+		//		if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
+		//		{
+		//			locs.Add(new Microsoft.Maps.MapControl.WPF.Location(latitude, longitude));
+		//		}
+		//		//
+		//		///var endingPoint = new Point((float)endingCoordinates.Last(), (float)endingCoordinates.First());
 
-			return locs;
-		}
+		//		//polyline.Points.Add(startingPoint);
+		//		//polyline.Points.Add(endingPoint);
+		//	}
+
+		//	return locs;
+		//}
 
 		private static Route GetRoute()
 		{

@@ -72,6 +72,9 @@
     <Reference Include="Itinero.IO.Osm, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Itinero.IO.Osm.1.5.0\lib\net45\Itinero.IO.Osm.dll</HintPath>
     </Reference>
+    <Reference Include="MapControl.WPF, Version=5.1.0.0, Culture=neutral, PublicKeyToken=f26fcf0059638459, processorArchitecture=MSIL">
+      <HintPath>..\packages\XAML.MapControl.5.1.0\lib\net462\MapControl.WPF.dll</HintPath>
+    </Reference>
     <Reference Include="Mapsui, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Mapsui.2.0.0\lib\net461\Mapsui.dll</HintPath>
     </Reference>
@@ -86,6 +89,9 @@
     </Reference>
     <Reference Include="Mapsui.UI.Wpf, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Mapsui.2.0.0\lib\net461\Mapsui.UI.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Maps.MapControl.WPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Maps.MapControl.WPF.1.0.0.3\lib\net40-Client\Microsoft.Maps.MapControl.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -204,13 +210,17 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LocationToVisibilityConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapLayers.cs" />
+    <Compile Include="MapViewModel.cs" />
     <Compile Include="Model\GeoJsonModel.cs" />
+    <Compile Include="OutlinedText.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

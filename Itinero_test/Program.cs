@@ -54,7 +54,7 @@ namespace Itinero_test
 			Console.WriteLine($"Elapsed: {stopwatch.Elapsed.Minutes} min {stopwatch.Elapsed.Seconds} sec");
 			if (!route.IsError)
 			{
-				using (var writer = new StreamWriter("route.geojson"))
+				using (var writer = new StreamWriter(@"C:\GIT\private\map\route.geojson"))
 				{
 					route.Value.WriteGeoJson(writer);
 				}

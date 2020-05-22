@@ -51,7 +51,7 @@ namespace MapDisplayApp
 
 		private static System.Windows.Shapes.Polyline GetPolyline()
 		{
-			string text = File.ReadAllText(@"C:\GIT\private\Mapsui_mytest\Itinero_test\bin\x64\Debug\route.geojson");
+			string text = File.ReadAllText(@"C:\GIT\private\map\route.geojson");
 			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
 			var polyline = new System.Windows.Shapes.Polyline();
 			foreach (Feature feature in parsed.features)
@@ -73,7 +73,7 @@ namespace MapDisplayApp
 
 		private static ViewModel.Polyline GetMapControlPolyLine()
 		{
-			string text = File.ReadAllText(@"C:\GIT\private\Mapsui_mytest\Itinero_test\bin\x64\Debug\route.geojson");
+			string text = File.ReadAllText(@"C:\GIT\private\map\route.geojson");
 			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
 			var polyline = new ViewModel.Polyline();
 			polyline.Locations = new MapControl.LocationCollection();

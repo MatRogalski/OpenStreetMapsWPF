@@ -17,7 +17,7 @@ namespace Itinero_test
 		{
 			//ProcessDbToGetOnlyCarRoutes();
 			RouterDb routerDb = null;
-			using (var stream = new FileInfo(@"C:\GIT\private\map\poland.routerdb").OpenRead())
+			using (var stream = new FileInfo(@"C:\GIT\private\map\quebec.routerdb").OpenRead())
 			{
 				routerDb = RouterDb.Deserialize(stream);
 			}
@@ -29,8 +29,8 @@ namespace Itinero_test
 
 			//routerDb.AddContracted(profile); //dodawanie tego trwa bardzo długo, może się opłacać zrobić to przed wyznaczaniem wielu tras
 
-			Coordinate from = new Coordinate(52.255135f, 20.982435f);
-			Coordinate to = new Coordinate(53.111618f, 20.383173f);
+			Coordinate from = new Coordinate(45.532400f, -73.622885f);
+			Coordinate to = new Coordinate(45.545841f, -73.623474f);
 
 			//create a routerpoint from a location
 			//snaps the given location to the nearest routable edge
@@ -64,14 +64,14 @@ namespace Itinero_test
 		private static void ProcessDbToGetOnlyCarRoutes()
 		{
 			var routerDb = new RouterDb();
-			using (var stream = new FileInfo(@"C:\GIT\private\map\poland-latest.osm.pbf").OpenRead())
+			using (var stream = new FileInfo(@"C:\GIT\private\map\quebec-latest.osm.pbf").OpenRead())
 			{
 				// create the network for cars.
 				routerDb.LoadOsmData(stream, Vehicle.Car);
 			}
 
 			// write the routerDb to disk
-			using (var stream = new FileInfo(@"C:\GIT\private\map\poland.routerdb").Open(FileMode.Create))
+			using (var stream = new FileInfo(@"C:\GIT\private\map\quebec.routerdb").Open(FileMode.Create))
 			{
 				routerDb.Serialize(stream);
 			}

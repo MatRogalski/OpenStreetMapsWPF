@@ -20,6 +20,8 @@ using Itinero;
 using System.IO;
 using Itinero.IO.Osm;
 using Itinero.Osm.Vehicles;
+using Mapsui_mytest.Model;
+using Newtonsoft.Json;
 
 namespace Mapsui_mytest
 {
@@ -41,6 +43,33 @@ namespace Mapsui_mytest
 
 
 
+			Polyline polyline = GetPolyLine();
+
+			//dd.
+			//MyMapControl.Map.Layers.Add(new Layer())
+
+		}
+
+		private static Polyline GetPolyLine()
+		{
+			var text = File.ReadAllText(@"C:\GIT\private\Mapsui_mytest\Itinero_test\bin\x64\Debug\route.geojson");
+			var parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
+			var polyline = new Polyline();
+			foreach (var feature in parsed.features)
+			{
+				var startingCoordinates = feature.geometry.coordinates[0] as Newtonsoft.Json.Linq.JArray;
+				//
+				var startingPoint = new Point((float)startingCoordinates.Last(), (float)startingCoordinates.First());
+
+				var endingCoordinates = feature.geometry.coordinates[1] as Newtonsoft.Json.Linq.JArray;
+				//
+				var endingPoint = new Point((float)endingCoordinates.Last(), (float)endingCoordinates.First());
+
+				polyline.Points.Add(startingPoint);
+				polyline.Points.Add(endingPoint);
+			}
+
+			return polyline;
 		}
 	}
 }

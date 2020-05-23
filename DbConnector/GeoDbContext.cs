@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Configuration;
-//using System.Data.Entity;
 
 namespace DbConnector
 {

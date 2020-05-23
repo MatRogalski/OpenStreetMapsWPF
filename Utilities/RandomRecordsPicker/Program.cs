@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace Utilities
+namespace RandomRecordsPicker
 {
 	class Program
 	{

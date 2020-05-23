@@ -22,6 +22,7 @@ using MapControl;
 using ViewModel;
 using MapDisplayApp.Model;
 using Newtonsoft.Json;
+
 namespace MapDisplayApp
 {
 	/// <summary>
@@ -37,11 +38,11 @@ namespace MapDisplayApp
 			//TileImageLoader.Cache = new MapControl.Caching.SQLiteCache(TileImageLoader.DefaultCacheFolder);
 			//TileImageLoader.Cache = null;
 
-			InitializeComponent();
+			this.InitializeComponent();
 
 			ViewModel.Polyline polyline = GetMapControlPolyLine();
 
-			AddPolylineToMap(polyline);
+			this.AddPolylineToMap(polyline);
 		}
 
 		private void AddPolylineToMap(ViewModel.Polyline polyline)
@@ -141,7 +142,7 @@ namespace MapDisplayApp
 			{
 				routerDb = RouterDb.Deserialize(stream);
 			}
-			var router = new Router(routerDb);
+			var router = new Itinero.Router(routerDb);
 
 			//get a profile
 			Itinero.Profiles.Profile profile = Vehicle.Car.Fastest(); //the default OSM car profile
@@ -180,7 +181,7 @@ namespace MapDisplayApp
 			{
 				//map.ZoomMap(e.GetPosition(map), Math.Floor(map.ZoomLevel + 1.5));
 				//map.ZoomToBounds(new BoundingBox(53, 7, 54, 9));
-				map.TargetCenter = map.ViewToLocation(e.GetPosition(map));
+				this.map.TargetCenter = this.map.ViewToLocation(e.GetPosition(this.map));
 			}
 		}
 
@@ -194,7 +195,7 @@ namespace MapDisplayApp
 
 		private void MapMouseMove(object sender, MouseEventArgs e)
 		{
-			MapControl.Location location = map.ViewToLocation(e.GetPosition(map));
+			MapControl.Location location = this.map.ViewToLocation(e.GetPosition(this.map));
 			int latitude = (int)Math.Round(location.Latitude * 60000d);
 			int longitude = (int)Math.Round(MapControl.Location.NormalizeLongitude(location.Longitude) * 60000d);
 			char latHemisphere = 'N';
@@ -212,7 +213,7 @@ namespace MapDisplayApp
 				lonHemisphere = 'W';
 			}
 
-			mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
+			this.mouseLocation.Text = string.Format(CultureInfo.InvariantCulture,
 				"{0}  {1:00} {2:00.000}\n{3} {4:000} {5:00.000}",
 				latHemisphere, latitude / 60000, (latitude % 60000) / 1000d,
 				lonHemisphere, longitude / 60000, (longitude % 60000) / 1000d);
@@ -220,7 +221,7 @@ namespace MapDisplayApp
 
 		private void MapMouseLeave(object sender, MouseEventArgs e)
 		{
-			mouseLocation.Text = string.Empty;
+			this.mouseLocation.Text = string.Empty;
 		}
 
 		private void MapManipulationInertiaStarting(object sender, ManipulationInertiaStartingEventArgs e)
@@ -237,12 +238,12 @@ namespace MapDisplayApp
 
 		private void SeamarksChecked(object sender, RoutedEventArgs e)
 		{
-			map.Children.Insert(map.Children.IndexOf(mapGraticule), ((MapViewModel)DataContext).MapLayers.SeamarksLayer);
+			this.map.Children.Insert(this.map.Children.IndexOf(this.mapGraticule), ((MapViewModel)this.DataContext).MapLayers.SeamarksLayer);
 		}
 
 		private void SeamarksUnchecked(object sender, RoutedEventArgs e)
 		{
-			map.Children.Remove(((MapViewModel)DataContext).MapLayers.SeamarksLayer);
+			this.map.Children.Remove(((MapViewModel)this.DataContext).MapLayers.SeamarksLayer);
 		}
 	}
 }

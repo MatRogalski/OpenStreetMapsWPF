@@ -55,7 +55,7 @@ namespace ViewModel
 			set
 			{
 				this.additionalTimeMin = value;
-				this.RaisePropertyChanged(nameof(additionalTimeMin));
+				this.RaisePropertyChanged(nameof(this.additionalTimeMin));
 			}
 		}
 

@@ -136,23 +136,23 @@ namespace ViewModel
 
         public string CurrentMapLayerName
         {
-            get { return currentMapLayerName; }
+            get { return this.currentMapLayerName; }
             set
             {
-                currentMapLayerName = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentMapLayerName)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentMapLayer)));
+                this.currentMapLayerName = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.CurrentMapLayerName)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.CurrentMapLayer)));
             }
         }
 
         public UIElement CurrentMapLayer
         {
-            get { return mapLayers[currentMapLayerName]; }
+            get { return this.mapLayers[this.currentMapLayerName]; }
         }
 
         public UIElement SeamarksLayer
         {
-            get { return mapLayers["Seamarks"]; }
+            get { return this.mapLayers["Seamarks"]; }
         }
 
         public List<string> MapLayerNames { get; } = new List<string>
@@ -178,9 +178,9 @@ namespace ViewModel
 
             if (!string.IsNullOrEmpty(BingMapsTileLayer.ApiKey))
             {
-                MapLayerNames.Add("Bing Maps Road");
-                MapLayerNames.Add("Bing Maps Aerial");
-                MapLayerNames.Add("Bing Maps Aerial with Labels");
+                this.MapLayerNames.Add("Bing Maps Road");
+                this.MapLayerNames.Add("Bing Maps Aerial");
+                this.MapLayerNames.Add("Bing Maps Aerial with Labels");
             }
         }
     }
@@ -189,10 +189,10 @@ namespace ViewModel
     {
         public ChartServerLayer()
         {
-            Description = "© [SevenCs GmbH](http://www.sevencs.com)";
-            ServiceUri = new Uri("https://wms.sevencs.com:9090");
-            Layers = "ENC";
-            MaxBoundingBoxWidth = 360;
+            this.Description = "© [SevenCs GmbH](http://www.sevencs.com)";
+            this.ServiceUri = new Uri("https://wms.sevencs.com:9090");
+            this.Layers = "ENC";
+            this.MaxBoundingBoxWidth = 360;
         }
 
         protected override string GetImageUri()

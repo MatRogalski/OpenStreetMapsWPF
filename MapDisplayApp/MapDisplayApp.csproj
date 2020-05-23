@@ -13,6 +13,10 @@
     <PackageReference Include="XAML.MapControl" Version="5.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Router\Router.csproj" />
+  </ItemGroup>
+
   <Import Project="..\ViewModel\ViewModel.projitems" Label="Shared" />
 
 </Project>

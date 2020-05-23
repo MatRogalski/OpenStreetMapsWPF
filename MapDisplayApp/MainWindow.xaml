@@ -200,7 +200,7 @@
 					<TextBox Name="AdditionalTimeTextBox" Text="{Binding UserInputData.AdditionalTimeMin}"></TextBox>
 				</StackPanel>
 				<StackPanel Margin="5" VerticalAlignment="Center">
-					<Button Name="GetRouteButton" Height="40">Wyznacz trasę</Button>
+					<Button Command="{Binding CalculateRoute}" IsEnabled="{Binding CanStartRouteCalculation, UpdateSourceTrigger=PropertyChanged}" Name="GetRouteButton" Height="40">Wyznacz trasę</Button>
 				</StackPanel>
 			</StackPanel>
 		</Grid>

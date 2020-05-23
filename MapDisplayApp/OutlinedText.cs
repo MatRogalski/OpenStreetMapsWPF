@@ -39,84 +39,84 @@ namespace MapDisplayApp
 
         public string Text
         {
-            get { return (string)GetValue(TextProperty); }
-            set { SetValue(TextProperty, value); }
+            get { return (string)this.GetValue(TextProperty); }
+            set { this.SetValue(TextProperty, value); }
         }
 
         public double FontSize
         {
-            get { return (double)GetValue(FontSizeProperty); }
-            set { SetValue(FontSizeProperty, value); }
+            get { return (double)this.GetValue(FontSizeProperty); }
+            set { this.SetValue(FontSizeProperty, value); }
         }
 
         public FontFamily FontFamily
         {
-            get { return (FontFamily)GetValue(FontFamilyProperty); }
-            set { SetValue(FontFamilyProperty, value); }
+            get { return (FontFamily)this.GetValue(FontFamilyProperty); }
+            set { this.SetValue(FontFamilyProperty, value); }
         }
 
         public FontStyle FontStyle
         {
-            get { return (FontStyle)GetValue(FontStyleProperty); }
-            set { SetValue(FontStyleProperty, value); }
+            get { return (FontStyle)this.GetValue(FontStyleProperty); }
+            set { this.SetValue(FontStyleProperty, value); }
         }
 
         public FontWeight FontWeight
         {
-            get { return (FontWeight)GetValue(FontWeightProperty); }
-            set { SetValue(FontWeightProperty, value); }
+            get { return (FontWeight)this.GetValue(FontWeightProperty); }
+            set { this.SetValue(FontWeightProperty, value); }
         }
 
         public FontStretch FontStretch
         {
-            get { return (FontStretch)GetValue(FontStretchProperty); }
-            set { SetValue(FontStretchProperty, value); }
+            get { return (FontStretch)this.GetValue(FontStretchProperty); }
+            set { this.SetValue(FontStretchProperty, value); }
         }
 
         public Brush Foreground
         {
-            get { return (Brush)GetValue(ForegroundProperty); }
-            set { SetValue(ForegroundProperty, value); }
+            get { return (Brush)this.GetValue(ForegroundProperty); }
+            set { this.SetValue(ForegroundProperty, value); }
         }
 
         public Brush Background
         {
-            get { return (Brush)GetValue(BackgroundProperty); }
-            set { SetValue(BackgroundProperty, value); }
+            get { return (Brush)this.GetValue(BackgroundProperty); }
+            set { this.SetValue(BackgroundProperty, value); }
         }
 
         public double OutlineThickness
         {
-            get { return (double)GetValue(OutlineThicknessProperty); }
-            set { SetValue(OutlineThicknessProperty, value); }
+            get { return (double)this.GetValue(OutlineThicknessProperty); }
+            set { this.SetValue(OutlineThicknessProperty, value); }
         }
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            return CheckGlyphRun() ? outline.Bounds.Size : new Size();
+            return this.CheckGlyphRun() ? this.outline.Bounds.Size : new Size();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (CheckGlyphRun())
+            if (this.CheckGlyphRun())
             {
-                var location = outline.Bounds.Location;
+                var location = this.outline.Bounds.Location;
                 drawingContext.PushTransform(new TranslateTransform(-location.X, -location.Y));
-                drawingContext.DrawGeometry(Background, null, outline);
-                drawingContext.DrawGlyphRun(Foreground, glyphRun);
+                drawingContext.DrawGeometry(this.Background, null, this.outline);
+                drawingContext.DrawGlyphRun(this.Foreground, this.glyphRun);
             }
         }
 
         private bool CheckGlyphRun()
         {
-            if (glyphRun == null)
+            if (this.glyphRun == null)
             {
-                if (string.IsNullOrEmpty(Text))
+                if (string.IsNullOrEmpty(this.Text))
                 {
                     return false;
                 }
 
-                var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+                var typeface = new Typeface(this.FontFamily, this.FontStyle, this.FontWeight, this.FontStretch);
                 GlyphTypeface glyphTypeface;
 
                 if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
@@ -124,19 +124,19 @@ namespace MapDisplayApp
                     return false;
                 }
 
-                var glyphIndices = new ushort[Text.Length];
-                var advanceWidths = new double[Text.Length];
+                var glyphIndices = new ushort[this.Text.Length];
+                var advanceWidths = new double[this.Text.Length];
 
-                for (int i = 0; i < Text.Length; i++)
+                for (int i = 0; i < this.Text.Length; i++)
                 {
-                    var glyphIndex = glyphTypeface.CharacterToGlyphMap[Text[i]];
+                    var glyphIndex = glyphTypeface.CharacterToGlyphMap[this.Text[i]];
                     glyphIndices[i] = glyphIndex;
-                    advanceWidths[i] = glyphTypeface.AdvanceWidths[glyphIndex] * FontSize;
+                    advanceWidths[i] = glyphTypeface.AdvanceWidths[glyphIndex] * this.FontSize;
                 }
 
-                glyphRun = new GlyphRun(glyphTypeface, 0, false, FontSize, 1f, glyphIndices, new Point(), advanceWidths, null, null, null, null, null, null);
+                this.glyphRun = new GlyphRun(glyphTypeface, 0, false, this.FontSize, 1f, glyphIndices, new Point(), advanceWidths, null, null, null, null, null, null);
 
-                outline = glyphRun.BuildGeometry().GetWidenedPathGeometry(new Pen(null, OutlineThickness * 2d));
+                this.outline = this.glyphRun.BuildGeometry().GetWidenedPathGeometry(new Pen(null, this.OutlineThickness * 2d));
             }
 
             return true;

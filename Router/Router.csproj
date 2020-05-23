@@ -4,8 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <Import Project="..\ViewModel\ViewModel.projitems" Label="Shared" />
-
   <ItemGroup>
     <PackageReference Include="Esri.ArcGISRuntime" Version="100.8.0" />
     <PackageReference Include="XAML.MapControl" Version="5.1.0" />

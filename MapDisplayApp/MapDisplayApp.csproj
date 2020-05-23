@@ -13,4 +13,6 @@
     <PackageReference Include="XAML.MapControl" Version="5.1.0" />
   </ItemGroup>
 
+  <Import Project="..\ViewModel\ViewModel.projitems" Label="Shared" />
+
 </Project>

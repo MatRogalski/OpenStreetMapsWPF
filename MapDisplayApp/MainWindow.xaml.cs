@@ -89,10 +89,10 @@ namespace MapDisplayApp
 					polyline.Locations.Add(new MapControl.Location((float)endingCoordinates.Last(), (float)endingCoordinates.First()));
 				}
 
-				if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
-				{
-					polyline.Locations.Add(new MapControl.Location(latitude, longitude));
-				}
+				//if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
+				//{
+				//	polyline.Locations.Add(new MapControl.Location(latitude, longitude));
+				//}
 			}
 
 			return polyline;

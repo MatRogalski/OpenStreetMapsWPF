@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itinero_test", "Itinero_tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapDisplayApp", "MapDisplayApp\MapDisplayApp.csproj", "{9931DE5D-F132-4807-B42D-B7B58B7CA8EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{2621EFB2-8242-4734-89E1-9F256A1C4103}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{9931DE5D-F132-4807-B42D-B7B58B7CA8EF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9931DE5D-F132-4807-B42D-B7B58B7CA8EF}.Release|x64.ActiveCfg = Release|Any CPU
 		{9931DE5D-F132-4807-B42D-B7B58B7CA8EF}.Release|x64.Build.0 = Release|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Debug|x64.Build.0 = Debug|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Release|x64.ActiveCfg = Release|Any CPU
+		{2621EFB2-8242-4734-89E1-9F256A1C4103}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

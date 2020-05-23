@@ -11,5 +11,6 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)MapLayers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MapViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UserInputData.cs" />
   </ItemGroup>
 </Project>

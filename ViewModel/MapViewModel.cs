@@ -1,4 +1,5 @@
 ﻿using MapControl;
+using OsmSharp.API;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -63,6 +64,8 @@ namespace ViewModel
         public ObservableCollection<Polyline> Polylines { get; } = new ObservableCollection<Polyline>();
 
         public MapLayers MapLayers { get; } = new MapLayers();
+
+        public UserInputData UserInputData { get; } = new UserInputData();
 
         public MapViewModel()
         {

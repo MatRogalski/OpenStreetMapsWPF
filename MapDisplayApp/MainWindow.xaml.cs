@@ -39,9 +39,73 @@ namespace MapDisplayApp
 
 			InitializeComponent();
 
-			ViewModel.Polyline polyline = GetMapControlPolyLine();
+
+			ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
 
 			AddPolylineToMap(polyline);
+		}
+
+		private static void ShowNominatimUsage()
+		{
+			Nominatim.API.Geocoders.ForwardGeocoder geocoder = new Nominatim.API.Geocoders.ForwardGeocoder();
+			Nominatim.API.Models.ForwardGeocodeRequest request = new Nominatim.API.Models.ForwardGeocodeRequest()
+			{
+				queryString = "Mława, Stary Rynek 1",
+				LimitResults = 1,
+				ShowGeoJSON = true
+			};
+			var geocodeResponses = geocoder.Geocode(request);
+			geocodeResponses.Wait();
+		}
+
+		private static APIHelpers.Coordinate[] GetCoordinatesFromWarszawaToMlawa()
+		{
+			APIHelpers.Coordinate mlawa = new APIHelpers.Coordinate((float)53.112128, (float)20.383661);
+			APIHelpers.Coordinate warszawa = new APIHelpers.Coordinate((float)52.230320, (float)21.011132);
+			APIHelpers.Coordinate szczecin = new APIHelpers.Coordinate((float)53.421684, (float)14.561405);
+			APIHelpers.Coordinate[] coordinates = new APIHelpers.Coordinate[3];
+			coordinates[0] = warszawa;
+			coordinates[1] = mlawa;
+			coordinates[2] = szczecin;
+			return coordinates;
+		}
+
+		private static APIHelpers.Coordinate[] GetManyCoordinatesForNormalRoute()
+		{
+			List<APIHelpers.Coordinate> coordinates = new List<APIHelpers.Coordinate>();
+
+			APIHelpers.Coordinate warszawa = new APIHelpers.Coordinate((float)52.230320, (float)21.011132);	
+			APIHelpers.Coordinate bydgoszcz = new APIHelpers.Coordinate((float)53.114519, (float)18.008936);
+			APIHelpers.Coordinate lodz = new APIHelpers.Coordinate((float)51.785124, (float)19.462234);
+			APIHelpers.Coordinate poznan = new APIHelpers.Coordinate((float)52.398515, (float)16.938702);
+			APIHelpers.Coordinate mlawa = new APIHelpers.Coordinate((float)53.112128, (float)20.383661);
+			APIHelpers.Coordinate szczecin = new APIHelpers.Coordinate((float)53.421684, (float)14.561405);
+
+			coordinates.Add(warszawa);
+			coordinates.Add(bydgoszcz);
+			coordinates.Add(lodz);			
+			coordinates.Add(poznan);
+			coordinates.Add(mlawa);
+			coordinates.Add(szczecin);
+
+			return coordinates.ToArray();
+		}
+
+		private static APIHelpers.Coordinate[] GetManyCoordinatesForOptimalRoute()
+		{
+			List<APIHelpers.Coordinate> coordinates = new List<APIHelpers.Coordinate>();
+
+			APIHelpers.Coordinate bydgoszcz = new APIHelpers.Coordinate((float)53.114519, (float)18.008936);
+			APIHelpers.Coordinate lodz = new APIHelpers.Coordinate((float)51.785124, (float)19.462234);
+			APIHelpers.Coordinate poznan = new APIHelpers.Coordinate((float)52.398515, (float)16.938702);
+			APIHelpers.Coordinate mlawa = new APIHelpers.Coordinate((float)53.112128, (float)20.383661);
+
+			coordinates.Add(bydgoszcz);
+			coordinates.Add(lodz);
+			coordinates.Add(poznan);
+			coordinates.Add(mlawa);
+
+			return coordinates.ToArray();
 		}
 
 		private void AddPolylineToMap(ViewModel.Polyline polyline)
@@ -51,7 +115,7 @@ namespace MapDisplayApp
 
 		private static System.Windows.Shapes.Polyline GetPolyline()
 		{
-			string text = File.ReadAllText(@"C:\GIT\private\map\route.geojson");
+			string text = File.ReadAllText(@"C:\OSM\route.geojson");
 			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
 			var polyline = new System.Windows.Shapes.Polyline();
 			foreach (Feature feature in parsed.features)
@@ -73,7 +137,7 @@ namespace MapDisplayApp
 
 		private static ViewModel.Polyline GetMapControlPolyLine()
 		{
-			string text = File.ReadAllText(@"C:\GIT\private\map\route.geojson");
+			string text = File.ReadAllText(@"C:\OSM\route.geojson");
 			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
 			var polyline = new ViewModel.Polyline();
 			polyline.Locations = new MapControl.LocationCollection();
@@ -88,6 +152,29 @@ namespace MapDisplayApp
 				{
 					polyline.Locations.Add(new MapControl.Location((float)endingCoordinates.Last(), (float)endingCoordinates.First()));
 				}
+
+				//if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
+				//{
+				//	polyline.Locations.Add(new MapControl.Location(latitude, longitude));
+				//}
+			}
+
+			return polyline;
+		}
+
+		private static ViewModel.Polyline GetMapControlPolyLineFromOsrmApi()
+		{
+			//OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetRouteBetweenPoints(GetManyCoordinatesForNormalRoute());
+
+			APIHelpers.Coordinate warszawa = new APIHelpers.Coordinate((float)52.230320, (float)21.011132);
+			APIHelpers.Coordinate szczecin = new APIHelpers.Coordinate((float)53.421684, (float)14.561405);
+			OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetOptimalRoute(warszawa, szczecin, GetManyCoordinatesForOptimalRoute());
+
+			var polyline = new ViewModel.Polyline();
+			polyline.Locations = new MapControl.LocationCollection();
+			foreach (var coordinate in parsed.routes[0].geometry.coordinates)
+			{
+				polyline.Locations.Add(new MapControl.Location((float)coordinate[1], (float)coordinate[0]));
 
 				//if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
 				//{
@@ -134,7 +221,7 @@ namespace MapDisplayApp
 		//	return locs;
 		//}
 
-		private static Route GetRoute()
+		private static Itinero.Route GetRoute()
 		{
 			RouterDb routerDb = null;
 			using (FileStream stream = new FileInfo(@"C:\GIT\private\map\quebec.routerdb").OpenRead())
@@ -149,8 +236,8 @@ namespace MapDisplayApp
 
 			//routerDb.AddContracted(profile); //dodawanie tego trwa bardzo długo, może się opłacać zrobić to przed wyznaczaniem wielu tras
 
-			var from = new Coordinate(45.532400f, -73.622885f);
-			var to = new Coordinate(45.545841f, -73.623474f);
+			var from = new Itinero.LocalGeo.Coordinate(45.532400f, -73.622885f);
+			var to = new Itinero.LocalGeo.Coordinate(45.545841f, -73.623474f);
 
 			//create a routerpoint from a location
 			//snaps the given location to the nearest routable edge
@@ -167,7 +254,7 @@ namespace MapDisplayApp
 
 			//calculate a route
 			//var route = router.Calculate(profile, start, end);
-			Result<Route> route = router.TryCalculate(profile, points.ToArray());
+			Result<Itinero.Route> route = router.TryCalculate(profile, points.ToArray());
 			return route.Value;
 		}
 

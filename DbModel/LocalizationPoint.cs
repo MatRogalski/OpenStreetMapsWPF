@@ -9,7 +9,7 @@ namespace DbModel
 	public class LocalizationPoint
 	{
 		[Key]
-		public long PointId { get; set; }
+		public long? PointId { get; set; }
 		public Point Coordinate { get; set; }
 		public string PostalCode { get; set; }
 		public string Region { get; set; }
@@ -25,7 +25,7 @@ namespace DbModel
 		public double? InnerTime { get; set; }
 
 
-		public long ParentPointId { get; set; }
+		public long? ParentPointId { get; set; }
 		public LocalizationPoint ParentPoint { get; set; }
 
 		public virtual List<LocalizationPoint> RelatedPoints { get; set; }

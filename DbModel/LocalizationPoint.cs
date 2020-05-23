@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace DbModel
@@ -23,6 +24,9 @@ namespace DbModel
 		public double? StaticScore { get; set; }
 		public double? InnerDistance { get; set; }
 		public double? InnerTime { get; set; }
+
+		[NotMapped]
+		public double? DynamicScore { get; set; }
 
 
 		public long? ParentPointId { get; set; }

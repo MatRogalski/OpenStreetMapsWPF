@@ -42,6 +42,9 @@ namespace DbConnector
 				.HasForeignKey(p => p.ParentPointId)
 				.OnDelete(DeleteBehavior.NoAction);
 
+			modelBuilder.Entity<LocalizationPoint>()
+				.Ignore(i => "DynamicScore");
+
 		}
 	}
 }

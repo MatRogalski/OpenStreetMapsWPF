@@ -7,7 +7,12 @@
   <Import Project="..\ViewModel\ViewModel.projitems" Label="Shared" />
 
   <ItemGroup>
+    <PackageReference Include="Esri.ArcGISRuntime" Version="100.8.0" />
     <PackageReference Include="XAML.MapControl" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DbConnector\DbConnector.csproj" />
   </ItemGroup>
 
 </Project>

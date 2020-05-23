@@ -44,5 +44,10 @@ namespace DbConnector.Repositories
             return this.context.Set<TEntity>();
         }
 
+        public virtual void SaveChanges()
+        {
+            this.context.SaveChanges();
+        }
+
     }
 }

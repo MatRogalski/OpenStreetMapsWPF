@@ -22,7 +22,7 @@ namespace DbConnector.Migrations
 
             modelBuilder.Entity("DbModel.LocalizationPoint", b =>
                 {
-                    b.Property<long>("PointId")
+                    b.Property<long?>("PointId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -45,7 +45,7 @@ namespace DbConnector.Migrations
                     b.Property<string>("Number")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("ParentPointId")
+                    b.Property<long?>("ParentPointId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("PostalCode")
@@ -72,8 +72,7 @@ namespace DbConnector.Migrations
                     b.HasOne("DbModel.LocalizationPoint", "ParentPoint")
                         .WithMany("RelatedPoints")
                         .HasForeignKey("ParentPointId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 #pragma warning restore 612, 618
         }

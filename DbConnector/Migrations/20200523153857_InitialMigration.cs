@@ -23,7 +23,7 @@ namespace DbConnector.Migrations
                     StaticScore = table.Column<double>(nullable: true),
                     InnerDistance = table.Column<double>(nullable: true),
                     InnerTime = table.Column<double>(nullable: true),
-                    ParentPointId = table.Column<long>(nullable: false)
+                    ParentPointId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {

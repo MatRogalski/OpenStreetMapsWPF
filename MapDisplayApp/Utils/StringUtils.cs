@@ -32,17 +32,6 @@ namespace MapDisplayApp.Utils
             return positionsString;
         }
 
-        public static string GetStringFromCoordinates(params Coordinate[] coordinates)
-        {
-            string coordinatesString = "";
-            foreach (var coordinate in coordinates)
-            {
-                if (coordinate != null)
-                    coordinatesString += $"{coordinate.longitude.ToString(CultureInfo.InvariantCulture)},{coordinate.latitude.ToString(CultureInfo.InvariantCulture)};";
-            }
-            coordinatesString = coordinatesString.Substring(0, coordinatesString.Length - 1);
-            return coordinatesString;
-        }
 
     }
 }

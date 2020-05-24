@@ -72,28 +72,28 @@ namespace MapDisplayApp
 			APIHelpers.MapboxAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
 		}
 
-		private static APIHelpers.Coordinate[] GetCoordinatesFromWarszawaToMlawa()
+		private static GeoJSON.Net.Geometry.Position[] GetCoordinatesFromWarszawaToMlawa()
 		{
-			APIHelpers.Coordinate mlawa = new APIHelpers.Coordinate((float)53.112128, (float)20.383661);
-			APIHelpers.Coordinate warszawa = new APIHelpers.Coordinate((float)52.230320, (float)21.011132);
-			APIHelpers.Coordinate szczecin = new APIHelpers.Coordinate((float)53.421684, (float)14.561405);
-			APIHelpers.Coordinate[] coordinates = new APIHelpers.Coordinate[3];
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);
+			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
+			GeoJSON.Net.Geometry.Position[] coordinates = new GeoJSON.Net.Geometry.Position[3];
 			coordinates[0] = warszawa;
 			coordinates[1] = mlawa;
 			coordinates[2] = szczecin;
 			return coordinates;
 		}
 
-		private static APIHelpers.Coordinate[] GetManyCoordinatesForNormalRoute()
+		private static GeoJSON.Net.Geometry.Position[] GetManyCoordinatesForNormalRoute()
 		{
-			List<APIHelpers.Coordinate> coordinates = new List<APIHelpers.Coordinate>();
+			List<GeoJSON.Net.Geometry.Position> coordinates = new List<GeoJSON.Net.Geometry.Position>();
 
-			APIHelpers.Coordinate warszawa = new APIHelpers.Coordinate((float)52.230320, (float)21.011132);	
-			APIHelpers.Coordinate bydgoszcz = new APIHelpers.Coordinate((float)53.114519, (float)18.008936);
-			APIHelpers.Coordinate lodz = new APIHelpers.Coordinate((float)51.785124, (float)19.462234);
-			APIHelpers.Coordinate poznan = new APIHelpers.Coordinate((float)52.398515, (float)16.938702);
-			APIHelpers.Coordinate mlawa = new APIHelpers.Coordinate((float)53.112128, (float)20.383661);
-			APIHelpers.Coordinate szczecin = new APIHelpers.Coordinate((float)53.421684, (float)14.561405);
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);	
+			GeoJSON.Net.Geometry.Position bydgoszcz = new GeoJSON.Net.Geometry.Position(53.114519, 18.008936);
+			GeoJSON.Net.Geometry.Position lodz = new GeoJSON.Net.Geometry.Position(51.785124, 19.462234);
+			GeoJSON.Net.Geometry.Position poznan = new GeoJSON.Net.Geometry.Position(52.398515, 16.938702);
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
 
 			coordinates.Add(warszawa);
 			coordinates.Add(bydgoszcz);
@@ -105,14 +105,14 @@ namespace MapDisplayApp
 			return coordinates.ToArray();
 		}
 
-		private static APIHelpers.Coordinate[] GetManyCoordinatesForOptimalRoute()
+		private static GeoJSON.Net.Geometry.Position[] GetManyCoordinatesForOptimalRoute()
 		{
-			List<APIHelpers.Coordinate> coordinates = new List<APIHelpers.Coordinate>();
+			List<GeoJSON.Net.Geometry.Position> coordinates = new List<GeoJSON.Net.Geometry.Position>();
 
-			APIHelpers.Coordinate bydgoszcz = new APIHelpers.Coordinate((float)53.114519, (float)18.008936);
-			APIHelpers.Coordinate lodz = new APIHelpers.Coordinate((float)51.785124, (float)19.462234);
-			APIHelpers.Coordinate poznan = new APIHelpers.Coordinate((float)52.398515, (float)16.938702);
-			APIHelpers.Coordinate mlawa = new APIHelpers.Coordinate((float)53.112128, (float)20.383661);
+			GeoJSON.Net.Geometry.Position bydgoszcz = new GeoJSON.Net.Geometry.Position(53.114519, 18.008936);
+			GeoJSON.Net.Geometry.Position lodz = new GeoJSON.Net.Geometry.Position(51.785124, 19.462234);
+			GeoJSON.Net.Geometry.Position poznan = new GeoJSON.Net.Geometry.Position(52.398515, 16.938702);
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
 
 			coordinates.Add(bydgoszcz);
 			coordinates.Add(lodz);
@@ -180,8 +180,8 @@ namespace MapDisplayApp
 		{
 			//OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetRouteBetweenPoints(GetManyCoordinatesForNormalRoute());
 
-			APIHelpers.Coordinate warszawa = new APIHelpers.Coordinate((float)52.230320, (float)21.011132);
-			APIHelpers.Coordinate szczecin = new APIHelpers.Coordinate((float)53.421684, (float)14.561405);
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);
+			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
 			OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetOptimalRoute(warszawa, szczecin, GetManyCoordinatesForOptimalRoute());
 
 			var polyline = new ViewModel.Polyline();

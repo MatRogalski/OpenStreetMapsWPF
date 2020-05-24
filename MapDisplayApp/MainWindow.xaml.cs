@@ -22,6 +22,7 @@ using MapControl;
 using ViewModel;
 using MapDisplayApp.Model;
 using Newtonsoft.Json;
+using MapDisplayApp.Utils;
 
 namespace MapDisplayApp
 {
@@ -40,9 +41,85 @@ namespace MapDisplayApp
 
 			this.InitializeComponent();
 
-			ViewModel.Polyline polyline = GetMapControlPolyLine();
+			OsrmTravelTimeTableUsage();
+			MapboxAPIUsage();
+			ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
 
 			this.AddPolylineToMap(polyline);
+		}
+
+		private static void MapboxAPIUsage()
+		{
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			var polygon = APIHelpers.MapboxAPIHelper.GetIsochroneAsPolygon(mlawa, 10);
+
+			GeoJSON.Net.Geometry.Position positionInside = new GeoJSON.Net.Geometry.Position(53.125982, 20.358108);
+			GeoJSON.Net.Geometry.Point pointInside = new GeoJSON.Net.Geometry.Point(positionInside);
+			GeoJSON.Net.Geometry.Position positionOutside = new GeoJSON.Net.Geometry.Position(53.155378, 20.363038);
+			GeoJSON.Net.Geometry.Point pointOutside = new GeoJSON.Net.Geometry.Point(positionOutside);
+
+			bool inside = GeometryUtils.CheckIfPointIsInsidePolygon(polygon, pointInside);
+			bool outside = GeometryUtils.CheckIfPointIsInsidePolygon(polygon, pointOutside);
+		}
+
+		private static void OsrmTravelTimeTableUsage()
+		{
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			GeoJSON.Net.Geometry.Position positionInside = new GeoJSON.Net.Geometry.Position(53.125982, 20.358108);
+			GeoJSON.Net.Geometry.Position positionOutside = new GeoJSON.Net.Geometry.Position(53.155378, 20.363038);
+
+			APIHelpers.OsrmAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
+			APIHelpers.MapboxAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
+		}
+
+		private static GeoJSON.Net.Geometry.Position[] GetCoordinatesFromWarszawaToMlawa()
+		{
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);
+			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
+			GeoJSON.Net.Geometry.Position[] coordinates = new GeoJSON.Net.Geometry.Position[3];
+			coordinates[0] = warszawa;
+			coordinates[1] = mlawa;
+			coordinates[2] = szczecin;
+			return coordinates;
+		}
+
+		private static GeoJSON.Net.Geometry.Position[] GetManyCoordinatesForNormalRoute()
+		{
+			List<GeoJSON.Net.Geometry.Position> coordinates = new List<GeoJSON.Net.Geometry.Position>();
+
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);	
+			GeoJSON.Net.Geometry.Position bydgoszcz = new GeoJSON.Net.Geometry.Position(53.114519, 18.008936);
+			GeoJSON.Net.Geometry.Position lodz = new GeoJSON.Net.Geometry.Position(51.785124, 19.462234);
+			GeoJSON.Net.Geometry.Position poznan = new GeoJSON.Net.Geometry.Position(52.398515, 16.938702);
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
+
+			coordinates.Add(warszawa);
+			coordinates.Add(bydgoszcz);
+			coordinates.Add(lodz);			
+			coordinates.Add(poznan);
+			coordinates.Add(mlawa);
+			coordinates.Add(szczecin);
+
+			return coordinates.ToArray();
+		}
+
+		private static GeoJSON.Net.Geometry.Position[] GetManyCoordinatesForOptimalRoute()
+		{
+			List<GeoJSON.Net.Geometry.Position> coordinates = new List<GeoJSON.Net.Geometry.Position>();
+
+			GeoJSON.Net.Geometry.Position bydgoszcz = new GeoJSON.Net.Geometry.Position(53.114519, 18.008936);
+			GeoJSON.Net.Geometry.Position lodz = new GeoJSON.Net.Geometry.Position(51.785124, 19.462234);
+			GeoJSON.Net.Geometry.Position poznan = new GeoJSON.Net.Geometry.Position(52.398515, 16.938702);
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+
+			coordinates.Add(bydgoszcz);
+			coordinates.Add(lodz);
+			coordinates.Add(poznan);
+			coordinates.Add(mlawa);
+
+			return coordinates.ToArray();
 		}
 
 		private void AddPolylineToMap(ViewModel.Polyline polyline)
@@ -52,7 +129,7 @@ namespace MapDisplayApp
 
 		private static System.Windows.Shapes.Polyline GetPolyline()
 		{
-			string text = File.ReadAllText(@"C:\GIT\private\map\route.geojson");
+			string text = File.ReadAllText(@"C:\OSM\route.geojson");
 			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
 			var polyline = new System.Windows.Shapes.Polyline();
 			foreach (Feature feature in parsed.features)
@@ -74,7 +151,7 @@ namespace MapDisplayApp
 
 		private static ViewModel.Polyline GetMapControlPolyLine()
 		{
-			string text = File.ReadAllText(@"C:\GIT\private\map\route.geojson");
+			string text = File.ReadAllText(@"C:\OSM\route.geojson");
 			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
 			var polyline = new ViewModel.Polyline();
 			polyline.Locations = new MapControl.LocationCollection();
@@ -89,6 +166,29 @@ namespace MapDisplayApp
 				{
 					polyline.Locations.Add(new MapControl.Location((float)endingCoordinates.Last(), (float)endingCoordinates.First()));
 				}
+
+				//if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
+				//{
+				//	polyline.Locations.Add(new MapControl.Location(latitude, longitude));
+				//}
+			}
+
+			return polyline;
+		}
+
+		private static ViewModel.Polyline GetMapControlPolyLineFromOsrmApi()
+		{
+			//OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetRouteBetweenPoints(GetManyCoordinatesForNormalRoute());
+
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);
+			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
+			OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetOptimalRoute(warszawa, szczecin, GetManyCoordinatesForOptimalRoute());
+
+			var polyline = new ViewModel.Polyline();
+			polyline.Locations = new MapControl.LocationCollection();
+			foreach (var coordinate in parsed.routes[0].geometry.coordinates)
+			{
+				polyline.Locations.Add(new MapControl.Location((float)coordinate[1], (float)coordinate[0]));
 
 				//if (feature.geometry.coordinates[0] is double longitude && feature.geometry.coordinates[1] is double latitude)
 				//{
@@ -135,7 +235,7 @@ namespace MapDisplayApp
 		//	return locs;
 		//}
 
-		private static Route GetRoute()
+		private static Itinero.Route GetRoute()
 		{
 			RouterDb routerDb = null;
 			using (FileStream stream = new FileInfo(@"C:\GIT\private\map\quebec.routerdb").OpenRead())
@@ -150,8 +250,8 @@ namespace MapDisplayApp
 
 			//routerDb.AddContracted(profile); //dodawanie tego trwa bardzo długo, może się opłacać zrobić to przed wyznaczaniem wielu tras
 
-			var from = new Coordinate(45.532400f, -73.622885f);
-			var to = new Coordinate(45.545841f, -73.623474f);
+			var from = new Itinero.LocalGeo.Coordinate(45.532400f, -73.622885f);
+			var to = new Itinero.LocalGeo.Coordinate(45.545841f, -73.623474f);
 
 			//create a routerpoint from a location
 			//snaps the given location to the nearest routable edge
@@ -168,7 +268,7 @@ namespace MapDisplayApp
 
 			//calculate a route
 			//var route = router.Calculate(profile, start, end);
-			Result<Route> route = router.TryCalculate(profile, points.ToArray());
+			Result<Itinero.Route> route = router.TryCalculate(profile, points.ToArray());
 			return route.Value;
 		}
 

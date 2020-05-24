@@ -17,6 +17,10 @@ namespace MapDisplayApp.Model
 
     public class Waypoint
     {
+        public string hint { get; set; }
+        public float distance { get; set; }
+        public string name { get; set; }
+        public float[] location { get; set; }
     }
 
     public class Route

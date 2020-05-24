@@ -22,6 +22,7 @@ using MapControl;
 using ViewModel;
 using MapDisplayApp.Model;
 using Newtonsoft.Json;
+using MapDisplayApp.Utils;
 
 namespace MapDisplayApp
 {
@@ -40,6 +41,7 @@ namespace MapDisplayApp
 
 			InitializeComponent();
 
+			OsrmTravelTimeTableUsage();
 			MapboxAPIUsage();
 			ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
 
@@ -56,8 +58,18 @@ namespace MapDisplayApp
 			GeoJSON.Net.Geometry.Position positionOutside = new GeoJSON.Net.Geometry.Position(53.155378, 20.363038);
 			GeoJSON.Net.Geometry.Point pointOutside = new GeoJSON.Net.Geometry.Point(positionOutside);
 
-			bool inside = APIHelpers.MapboxAPIHelper.CheckIfPointIsInsidePolygon(polygon, pointInside);
-			bool outside = APIHelpers.MapboxAPIHelper.CheckIfPointIsInsidePolygon(polygon, pointOutside);
+			bool inside = GeometryUtils.CheckIfPointIsInsidePolygon(polygon, pointInside);
+			bool outside = GeometryUtils.CheckIfPointIsInsidePolygon(polygon, pointOutside);
+		}
+
+		private static void OsrmTravelTimeTableUsage()
+		{
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			GeoJSON.Net.Geometry.Position positionInside = new GeoJSON.Net.Geometry.Position(53.125982, 20.358108);
+			GeoJSON.Net.Geometry.Position positionOutside = new GeoJSON.Net.Geometry.Position(53.155378, 20.363038);
+
+			APIHelpers.OsrmAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
+			APIHelpers.MapboxAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
 		}
 
 		private static APIHelpers.Coordinate[] GetCoordinatesFromWarszawaToMlawa()

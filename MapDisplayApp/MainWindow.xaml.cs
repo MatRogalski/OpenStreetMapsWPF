@@ -22,6 +22,7 @@ using MapControl;
 using ViewModel;
 using MapDisplayApp.Model;
 using Newtonsoft.Json;
+
 namespace MapDisplayApp
 {
 	/// <summary>
@@ -39,23 +40,24 @@ namespace MapDisplayApp
 
 			InitializeComponent();
 
-
+			MapboxAPIUsage();
 			ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
 
 			AddPolylineToMap(polyline);
 		}
 
-		private static void ShowNominatimUsage()
+		private static void MapboxAPIUsage()
 		{
-			Nominatim.API.Geocoders.ForwardGeocoder geocoder = new Nominatim.API.Geocoders.ForwardGeocoder();
-			Nominatim.API.Models.ForwardGeocodeRequest request = new Nominatim.API.Models.ForwardGeocodeRequest()
-			{
-				queryString = "Mława, Stary Rynek 1",
-				LimitResults = 1,
-				ShowGeoJSON = true
-			};
-			var geocodeResponses = geocoder.Geocode(request);
-			geocodeResponses.Wait();
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
+			var polygon = APIHelpers.MapboxAPIHelper.GetIsochroneAsPolygon(mlawa, 10);
+
+			GeoJSON.Net.Geometry.Position positionInside = new GeoJSON.Net.Geometry.Position(53.125982, 20.358108);
+			GeoJSON.Net.Geometry.Point pointInside = new GeoJSON.Net.Geometry.Point(positionInside);
+			GeoJSON.Net.Geometry.Position positionOutside = new GeoJSON.Net.Geometry.Position(53.155378, 20.363038);
+			GeoJSON.Net.Geometry.Point pointOutside = new GeoJSON.Net.Geometry.Point(positionOutside);
+
+			bool inside = APIHelpers.MapboxAPIHelper.CheckIfPointIsInsidePolygon(polygon, pointInside);
+			bool outside = APIHelpers.MapboxAPIHelper.CheckIfPointIsInsidePolygon(polygon, pointOutside);
 		}
 
 		private static APIHelpers.Coordinate[] GetCoordinatesFromWarszawaToMlawa()

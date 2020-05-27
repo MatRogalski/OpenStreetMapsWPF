@@ -10,6 +10,7 @@ using Nominatim.API.Models;
 using GeoJSON.Net.Geometry;
 using Router.Utils;
 
+
 namespace Router.APIHelpers
 {
     public static class OsrmAPIHelper
@@ -26,8 +27,8 @@ namespace Router.APIHelpers
 
         public static OsrmJsonRouteModel GetSimpleRoute(string sourceQuery, string destinationQuery, params Position[] intermediates)
         {
-            Position source = GetPositionForAddress(sourceQuery);
-            Position destination = GetPositionForAddress(destinationQuery);
+            Position source = NominatimAPIHelper.GetPositionForAddress(sourceQuery);
+            Position destination = NominatimAPIHelper.GetPositionForAddress(destinationQuery);
             Position[] positions = GetPositionsArray(source, destination, intermediates);
             return GetSimpleRoute(positions);
         }
@@ -44,8 +45,8 @@ namespace Router.APIHelpers
 
         public static OsrmJsonRouteModel GetOptimalRoute(string sourceQuery, string destinationQuery, params Position[] intermediates)
         {
-            Position sourceCoordinate = GetPositionForAddress(sourceQuery);
-            Position destinationCoordinate = GetPositionForAddress(destinationQuery);
+            Position sourceCoordinate = NominatimAPIHelper.GetPositionForAddress(sourceQuery);
+            Position destinationCoordinate = NominatimAPIHelper.GetPositionForAddress(destinationQuery);
             return GetOptimalRoute(sourceCoordinate, destinationCoordinate, intermediates);
         }
 
@@ -61,14 +62,7 @@ namespace Router.APIHelpers
             TravelTimesMatrixModel parsed = JsonConvert.DeserializeObject<TravelTimesMatrixModel>(json);
             return parsed;
         }
-
-        private static Position GetPositionForAddress(string addressquery)
-        {
-            var addressDetails = NominatimAPIHelper.GetAdressDetails(addressquery);
-            return new Position(addressDetails.Latitude, addressDetails.Longitude);
-        }
-
-        
+                
 
         private static Position[] GetPositionsArray(Position source, Position destination, Position[] intermediates)
         {

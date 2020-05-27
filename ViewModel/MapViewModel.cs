@@ -88,8 +88,8 @@ namespace ViewModel
             var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
             var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
 
-            NetTopologySuite.Geometries.Point startingPoint = new NetTopologySuite.Geometries.Point(startingPosition.Longitude, startingPosition.Latitude);
-            NetTopologySuite.Geometries.Point endingPoint = new NetTopologySuite.Geometries.Point(endingPosition.Longitude, endingPosition.Latitude);
+            GeoJSON.Net.Geometry.Position startingPoint = new GeoJSON.Net.Geometry.Position(startingPosition.Latitude, startingPosition.Longitude);
+            GeoJSON.Net.Geometry.Position endingPoint = new GeoJSON.Net.Geometry.Position(endingPosition.Latitude, endingPosition.Longitude);
 
 
             double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin);

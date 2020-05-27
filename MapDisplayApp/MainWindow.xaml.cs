@@ -24,6 +24,8 @@ using Router.Model;
 using Newtonsoft.Json;
 using Router.Utils;
 using Router.APIHelpers;
+using NetTopologySuite.Operation.Buffer;
+using GeoJSON.Net.Contrib.MsSqlSpatial;
 
 namespace MapDisplayApp
 {
@@ -42,13 +44,56 @@ namespace MapDisplayApp
 
 			this.InitializeComponent();
 
-			OsrmTravelTimeTableUsage();
-			MapboxAPIUsage();
-			ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
+			//OsrmTravelTimeTableUsage();
+			//MapboxAPIUsage();
 
-			this.AddPolylineToMap(polyline);
+			//ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
+			//this.AddPolylineToMap(polyline);
+
+			var lines = GetBufferPolyline();
+			foreach(var line in lines)
+			{
+				this.AddPolylineToMap(line);
+			}
+			
 		}
 
+		private List<ViewModel.Polyline> GetBufferPolyline()
+		{
+			GeoJSON.Net.Geometry.Position pos1 = new GeoJSON.Net.Geometry.Position(52.218703, 21.005044);
+			GeoJSON.Net.Geometry.Position pos2 = new GeoJSON.Net.Geometry.Position(54.182346, 16.189145);
+			OsrmJsonRouteModel parsed = OsrmAPIHelper.GetOptimalRoute(pos1, pos2);
+			var route = parsed.ToRouteModel();
+
+			Microsoft.SqlServer.Types.SqlGeography sqlGeography = route.MultiPointGeoJsonNet.ToSqlGeography();
+
+
+			Microsoft.SqlServer.Types.SqlGeography buffer = sqlGeography.STBuffer(100000);
+
+
+			List<ViewModel.Polyline> lines = new List<ViewModel.Polyline>();
+			lines.Add(GetFromSqlGeography(sqlGeography));
+			lines.Add(GetFromSqlGeography(buffer));
+
+			return lines;
+		}
+
+		private ViewModel.Polyline GetFromSqlGeography(Microsoft.SqlServer.Types.SqlGeography multiPoint)
+		{
+			var result = new ViewModel.Polyline()
+			{
+				Locations = new LocationCollection()
+			};
+
+			for (int i = 1; i <= multiPoint.STNumPoints(); i++)
+			{
+				Microsoft.SqlServer.Types.SqlGeography point = multiPoint.STPointN(i);
+				result.Locations.Add(new Location((double)point.Lat, (double)point.Long));
+			}
+			return result;
+		}
+
+		
 		private static void MapboxAPIUsage()
 		{
 			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);

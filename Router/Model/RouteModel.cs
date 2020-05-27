@@ -8,6 +8,7 @@ namespace Router.Model
     public class RouteModel
     {
         public MultiPoint MultiPoint { get; set; }
+        public GeoJSON.Net.Geometry.MultiPoint MultiPointGeoJsonNet { get; set; }
         public double Distance { get; set; }
         public double Time { get; set; }
     }

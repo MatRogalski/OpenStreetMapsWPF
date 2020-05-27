@@ -21,6 +21,12 @@ namespace Router.Model
             {
                 throw new ArgumentNullException("multipoint");
             }
+            var multipointGeoJsonNet = GetGeoJsonNetMultiPoint();
+            if (multipointGeoJsonNet == null)
+            {
+                throw new ArgumentNullException("multipointGeoJsonNet");
+            }
+
             double distance, time;
             if(routes != null && routes.Length > 0)
             {
@@ -35,6 +41,7 @@ namespace Router.Model
             return new RouteModel()
             {
                 MultiPoint = multipoint,
+                MultiPointGeoJsonNet = multipointGeoJsonNet,
                 Distance = distance,
                 Time = time
             };
@@ -65,7 +72,33 @@ namespace Router.Model
             throw new ArgumentException();
         }
 
-        
+        private GeoJSON.Net.Geometry.MultiPoint GetGeoJsonNetMultiPoint()
+        {
+            if (routes != null && routes.Length > 0)
+            {
+                var route = routes[0];
+                if (route.geometry != null)
+                {
+                    if (route.geometry.coordinates != null && route.geometry.coordinates.Length > 0)
+                    {
+                        List<GeoJSON.Net.Geometry.Point> points = new List<GeoJSON.Net.Geometry.Point>();
+                        foreach (float[] coordinate in route.geometry.coordinates)
+                        {
+                            float longitude = coordinate[0];
+                            float latitude = coordinate[1];
+                            GeoJSON.Net.Geometry.Position position = new GeoJSON.Net.Geometry.Position(latitude, longitude);
+                            GeoJSON.Net.Geometry.Point point = new GeoJSON.Net.Geometry.Point(position);
+                            points.Add(point);
+                        }
+                        return new GeoJSON.Net.Geometry.MultiPoint(points);
+                    }
+                }
+            }
+
+            throw new ArgumentException();
+        }
+
+
 
     }
 

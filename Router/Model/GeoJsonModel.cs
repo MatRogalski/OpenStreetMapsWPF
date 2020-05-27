@@ -12,12 +12,12 @@
 	{
 		public string type { get; set; }
 		public string name { get; set; }
-		public Geometry geometry { get; set; }
+		public GeometryGeoJson geometry { get; set; }
 		public Properties properties { get; set; }
 		public string Shape { get; set; }
 	}
 
-	public class Geometry
+	public class GeometryGeoJson
 	{
 		public string type { get; set; }
 		public object[] coordinates { get; set; }

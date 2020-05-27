@@ -24,7 +24,7 @@ namespace Router.APIHelpers
             OsrmJsonRouteModel parsed = JsonConvert.DeserializeObject<OsrmJsonRouteModel>(html);
             return parsed;
         }
-
+        
         public static OsrmJsonRouteModel GetSimpleRoute(string sourceQuery, string destinationQuery, params Position[] intermediates)
         {
             Position source = NominatimAPIHelper.GetPositionForAddress(sourceQuery);

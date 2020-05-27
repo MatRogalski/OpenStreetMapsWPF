@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
 namespace Router.Model
@@ -12,6 +13,60 @@ namespace Router.Model
 
         [JsonProperty("trips")]
         private Route[] trips { set { routes = value; } }
+
+        public RouteModel ToRouteModel()
+        {
+            var multipoint = GetNetTopologySuiteMultiPoint();
+            if(multipoint == null)
+            {
+                throw new ArgumentNullException("multipoint");
+            }
+            double distance, time;
+            if(routes != null && routes.Length > 0)
+            {
+                distance = routes[0].distance;
+                time = routes[0].duration;
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+
+            return new RouteModel()
+            {
+                MultiPoint = multipoint,
+                Distance = distance,
+                Time = time
+            };
+        }
+
+        private MultiPoint GetNetTopologySuiteMultiPoint()
+        {
+            if(routes != null && routes.Length > 0)
+            {
+                var route = routes[0];
+                if(route.geometry != null)
+                {
+                    if(route.geometry.coordinates != null && route.geometry.coordinates.Length > 0)
+                    {
+                        List<Point> points = new List<Point>();
+                        foreach(float[] coordinate in route.geometry.coordinates)
+                        {
+                            float longitude = coordinate[0];
+                            float latitude = coordinate[1];
+                            Point point = new Point(longitude, latitude);
+                            points.Add(point);
+                        }
+                        return new MultiPoint(points.ToArray());
+                    }
+                }
+            }
+
+            throw new ArgumentException();
+        }
+
+        
+
     }
 
 
@@ -43,4 +98,6 @@ namespace Router.Model
     public class Legs
     {
     }
+
+
 }

@@ -2,6 +2,8 @@
 using DbModel;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Operation.Buffer;
+using Router.APIHelpers;
+using Router.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +16,19 @@ namespace Router
 		private readonly Point endingPoint;
 		private readonly double totalAdditionalDistance;
 		private readonly double totalAdditionalTime;
-		private readonly LocalizationPointRepository repo;
+		private readonly ILocalizationPointRepository repo;
 		private readonly List<Point> waypoints;
-		private MultiPoint referenceRoute;
-		private MultiPoint resultRoute;
+		private RouteModel referenceRoute;
+		private RouteModel resultRoute;
 		private bool doesRouteMeetParameters;
 		private bool dynamicScoreNeedsToBeRecalculated;
 
 
 		private Router()
 		{
-			this.repo = new LocalizationPointRepository();
+			// TODO: change from mock
+			//this.repo = new LocalizationPointRepository();
+			this.repo = new MockLocalizationPointRepository();
 			this.waypoints = new List<Point>();
 			this.doesRouteMeetParameters = true;
 			this.dynamicScoreNeedsToBeRecalculated = true;
@@ -39,12 +43,13 @@ namespace Router
 		}
 
 
-		public MultiPoint GetRoute(bool useAggregatedPoints)
+		public RouteModel GetRoute(bool useAggregatedPoints)
 		{
 			this.referenceRoute = this.GetRouteBetweenTwoPoints();
 			this.resultRoute = this.referenceRoute;
-			var availablePoints = (useAggregatedPoints ? this.repo.GetWithAggregated() : this.repo.GetWithoutAggregated()).ToList();
-			this.ProcessAvailablePoints(availablePoints, this.totalAdditionalDistance, this.totalAdditionalTime);
+			// TODO: uncomment later
+			//var availablePoints = (useAggregatedPoints ? this.repo.GetWithAggregated() : this.repo.GetWithoutAggregated()).ToList();
+			//this.ProcessAvailablePoints(availablePoints, this.totalAdditionalDistance, this.totalAdditionalTime);
 			return this.resultRoute;
 		}
 
@@ -78,7 +83,7 @@ namespace Router
 			var tempWaypoints = this.waypoints.Select(i => i).ToList();
 			tempWaypoints.AddRange(innerPoints.Select(i => i.Coordinate));
 
-			MultiPoint newRoute = this.GetRouteBetweenTwoPoints(tempWaypoints);
+			RouteModel newRoute = this.GetRouteBetweenTwoPoints(tempWaypoints);
 			this.doesRouteMeetParameters = this.DoesRouteMeetParameters(newRoute, currentAdditionalDistance, currentAdditionalTime);
 			if (this.doesRouteMeetParameters)
 			{
@@ -95,7 +100,7 @@ namespace Router
 		private void AddSimplePoint(LocalizationPoint biggestScorePoint, ref double currentAdditionalDistance, ref double currentAdditionalTime)
 		{
 			this.waypoints.Add(biggestScorePoint.Coordinate);
-			MultiPoint newRoute = this.GetRouteBetweenTwoPoints(this.waypoints);
+			RouteModel newRoute = this.GetRouteBetweenTwoPoints(this.waypoints);
 
 			this.doesRouteMeetParameters = this.DoesRouteMeetParameters(newRoute, this.totalAdditionalDistance, this.totalAdditionalTime);
 			if (this.doesRouteMeetParameters)
@@ -105,7 +110,7 @@ namespace Router
 			}
 		}
 
-		private void UpdateResultRoute(MultiPoint newRoute, out double currentAdditionalDistance, out double currentAdditionalTime)
+		private void UpdateResultRoute(RouteModel newRoute, out double currentAdditionalDistance, out double currentAdditionalTime)
 		{
 			//TODO: current additional distance and current additional time needs to be updated every result route update, this is only mock
 			currentAdditionalDistance = this.totalAdditionalDistance * new Random().NextDouble();
@@ -118,7 +123,7 @@ namespace Router
 		{
 			var result = new List<LocalizationPoint>();
 			double halfOfAdditionalDistance = additionalDistance / 2;
-			var buffer = new BufferOp(this.resultRoute);
+			var buffer = new BufferOp(this.resultRoute.MultiPoint);
 
 			int bufferSize = (int)halfOfAdditionalDistance;
 
@@ -165,38 +170,53 @@ namespace Router
 			}
 		}
 
-		private bool DoesDynamicScoreNeedToBeRecalculated(MultiPoint oldRoute, MultiPoint newRoute, Point addedPoint)
+		private bool DoesDynamicScoreNeedToBeRecalculated(RouteModel oldRoute, RouteModel newRoute, Point addedPoint)
 		{
-			//TODO: needs implementation
+			//TODO: needs implementation, maybe check how much geometries differ?
 
 			return new Random().Next(20) >= 10;
 		}
 
-		private bool DoesRouteMeetParameters(MultiPoint route, double additionalDistance, double additionalTime)
+		private bool DoesRouteMeetParameters(RouteModel route, double additionalDistance, double additionalTime)
 		{
 			//TODO: needs implementation
 
 			return new Random().Next(20) >= 2;
 		}
 
-		private MultiPoint GetRouteBetweenTwoPoints()
+		private RouteModel GetRouteBetweenTwoPoints()
 		{
-			//TODO: needs implementation
-
-			return new MultiPoint(new Point[] { this.startingPoint, this.endingPoint });
+			// TODO: GetSimpleRoute or GetOptimalRoute?
+			// TODO: maybe change API types to NetTopologySuite
+			GeoJSON.Net.Geometry.Position startingPosition = new GeoJSON.Net.Geometry.Position(this.startingPoint.Y, this.startingPoint.X);
+			GeoJSON.Net.Geometry.Position endingPosition = new GeoJSON.Net.Geometry.Position(this.endingPoint.Y, this.endingPoint.X);
+			var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPosition);
+			return routeJson.ToRouteModel();
 		}
 
 
-		private MultiPoint GetRouteBetweenTwoPoints(List<Point> waypoints)
+		private RouteModel GetRouteBetweenTwoPoints(List<Point> waypoints)
 		{
-			//TODO: needs implementation
-
 			var points = new List<Point>();
+
+			// TODO: GetSimpleRoute or GetOptimalRoute?
+			// TODO: maybe change API types to NetTopologySuite
+			GeoJSON.Net.Geometry.Position startingPosition = new GeoJSON.Net.Geometry.Position(this.startingPoint.Y, this.startingPoint.X);
+			GeoJSON.Net.Geometry.Position endingPosition = new GeoJSON.Net.Geometry.Position(this.endingPoint.Y, this.endingPoint.X);
+
 			points.Add(this.startingPoint);
 			points.AddRange(waypoints);
 			points.Add(this.endingPoint);
 
-			return new MultiPoint(points.ToArray());
+			var positions = new List<GeoJSON.Net.Geometry.Position>();
+			foreach(var point in points)
+			{
+				GeoJSON.Net.Geometry.Position position = new GeoJSON.Net.Geometry.Position(point.Y, point.X);
+				positions.Add(position);
+			}
+
+			var routeJson = OsrmAPIHelper.GetSimpleRoute(positions.ToArray());
+			return routeJson.ToRouteModel();
 		}
 	}
 }

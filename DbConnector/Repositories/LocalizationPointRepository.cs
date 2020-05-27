@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DbConnector.Repositories
 {
-	public class LocalizationPointRepository : BaseRepository<LocalizationPoint>
+	public class LocalizationPointRepository : BaseRepository<LocalizationPoint>, ILocalizationPointRepository
 	{
 		public LocalizationPointRepository() : base()
 		{

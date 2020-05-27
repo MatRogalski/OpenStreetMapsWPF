@@ -85,14 +85,18 @@ namespace ViewModel
         }
         private void CalculateRouteExecute()
         {
-            var coordinateAPI = new CoordinateAPI();
-            NetTopologySuite.Geometries.Point startingPoint = coordinateAPI.GetCoordinatesByLocationName(this.UserInputData.StartingPoint);
-            NetTopologySuite.Geometries.Point endingPoint = coordinateAPI.GetCoordinatesByLocationName(this.UserInputData.EndingPoint);
+            var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
+            var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
+
+            NetTopologySuite.Geometries.Point startingPoint = new NetTopologySuite.Geometries.Point(startingPosition.Longitude, startingPosition.Latitude);
+            NetTopologySuite.Geometries.Point endingPoint = new NetTopologySuite.Geometries.Point(endingPosition.Longitude, endingPosition.Latitude);
+
+
             double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin);
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
             var router = new Router.Router(startingPoint, endingPoint, additionalDistance, additionalTime);
-            NetTopologySuite.Geometries.MultiPoint route = router.GetRoute(false);
-            Polyline polyline = this.GetFromMultiPoint(route);
+            Router.Model.RouteModel route = router.GetRoute(false);
+            Polyline polyline = this.GetFromMultiPoint(route.MultiPoint);
             this.Polylines.Add(polyline);
         }
         private bool CanCalculateRoute(object obj)

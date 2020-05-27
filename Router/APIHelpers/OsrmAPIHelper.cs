@@ -1,16 +1,16 @@
-﻿using MapDisplayApp.Model;
+﻿using Router.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Text;
-using MapDisplayApp.Proxies;
+using Router.Proxies;
 using Nominatim.API.Models;
 using GeoJSON.Net.Geometry;
-using MapDisplayApp.Utils;
+using Router.Utils;
 
-namespace MapDisplayApp.APIHelpers
+namespace Router.APIHelpers
 {
     public static class OsrmAPIHelper
     {

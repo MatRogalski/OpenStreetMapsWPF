@@ -7,17 +7,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itinero_test", "Itinero_tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapDisplayApp", "MapDisplayApp\MapDisplayApp.csproj", "{9931DE5D-F132-4807-B42D-B7B58B7CA8EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnector", "DbConnector\DbConnector.csproj", "{06C57FDE-0E37-4411-9D3B-8B38566A7B6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbConnector", "DbConnector\DbConnector.csproj", "{06C57FDE-0E37-4411-9D3B-8B38566A7B6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModel", "DbModel\DbModel.csproj", "{1D4C1198-2339-4604-BF2E-042089741450}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModel", "DbModel\DbModel.csproj", "{1D4C1198-2339-4604-BF2E-042089741450}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{439904D6-E061-4F8F-AE3A-6581F575ED82}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomRecordsPicker", "Utilities\RandomRecordsPicker\RandomRecordsPicker.csproj", "{28D3A4A7-28F8-4D6E-9340-EC3DECCA94AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseInitialFeeder", "Utilities\DatabaseInitialFeeder\DatabaseInitialFeeder.csproj", "{0786D383-EB85-4493-99B1-188F62040AEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DatabaseInitialFeeder", "Utilities\DatabaseInitialFeeder\DatabaseInitialFeeder.csproj", "{0786D383-EB85-4493-99B1-188F62040AEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Router", "Router\Router.csproj", "{5A7F9FCF-ECAB-4BF0-8B43-CA257054A8A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Router", "Router\Router.csproj", "{5A7F9FCF-ECAB-4BF0-8B43-CA257054A8A4}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ViewModel", "ViewModel\ViewModel.shproj", "{41061ACA-D024-4225-ADEF-A651E63ACC2A}"
 EndProject

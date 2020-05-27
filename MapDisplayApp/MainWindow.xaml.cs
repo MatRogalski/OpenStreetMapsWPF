@@ -20,9 +20,10 @@ using Itinero.LocalGeo;
 using System.Globalization;
 using MapControl;
 using ViewModel;
-using MapDisplayApp.Model;
+using Router.Model;
 using Newtonsoft.Json;
-using MapDisplayApp.Utils;
+using Router.Utils;
+using Router.APIHelpers;
 
 namespace MapDisplayApp
 {
@@ -51,7 +52,7 @@ namespace MapDisplayApp
 		private static void MapboxAPIUsage()
 		{
 			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);
-			var polygon = APIHelpers.MapboxAPIHelper.GetIsochroneAsPolygon(mlawa, 10);
+			var polygon = MapboxAPIHelper.GetIsochroneAsPolygon(mlawa, 10);
 
 			GeoJSON.Net.Geometry.Position positionInside = new GeoJSON.Net.Geometry.Position(53.125982, 20.358108);
 			GeoJSON.Net.Geometry.Point pointInside = new GeoJSON.Net.Geometry.Point(positionInside);
@@ -68,8 +69,8 @@ namespace MapDisplayApp
 			GeoJSON.Net.Geometry.Position positionInside = new GeoJSON.Net.Geometry.Position(53.125982, 20.358108);
 			GeoJSON.Net.Geometry.Position positionOutside = new GeoJSON.Net.Geometry.Position(53.155378, 20.363038);
 
-			APIHelpers.OsrmAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
-			APIHelpers.MapboxAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
+			OsrmAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
+			MapboxAPIHelper.GetTravelTimesMatrix(mlawa, positionInside, positionOutside);
 		}
 
 		private static GeoJSON.Net.Geometry.Position[] GetCoordinatesFromWarszawaToMlawa()
@@ -182,7 +183,7 @@ namespace MapDisplayApp
 
 			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.230320, 21.011132);
 			GeoJSON.Net.Geometry.Position szczecin = new GeoJSON.Net.Geometry.Position(53.421684, 14.561405);
-			OsrmJsonRouteModel parsed = APIHelpers.OsrmAPIHelper.GetOptimalRoute(warszawa, szczecin, GetManyCoordinatesForOptimalRoute());
+			OsrmJsonRouteModel parsed = OsrmAPIHelper.GetOptimalRoute(warszawa, szczecin, GetManyCoordinatesForOptimalRoute());
 
 			var polyline = new ViewModel.Polyline();
 			polyline.Locations = new MapControl.LocationCollection();

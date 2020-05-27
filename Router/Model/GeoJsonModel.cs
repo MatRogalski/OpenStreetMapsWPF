@@ -1,4 +1,4 @@
-﻿namespace MapDisplayApp.Model
+﻿namespace Router.Model
 {
 
 #pragma warning disable IDE1006 // Naming Styles

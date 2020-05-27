@@ -1,17 +1,17 @@
 ﻿using GeoJSON.Net.Contrib.MsSqlSpatial;
 using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
-using MapDisplayApp.Proxies;
+using Router.Proxies;
 using Microsoft.SqlServer.Types;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using MapDisplayApp.Utils;
-using MapDisplayApp.Model;
+using Router.Utils;
+using Router.Model;
 
-namespace MapDisplayApp.APIHelpers
+namespace Router.APIHelpers
 {
     public static class MapboxAPIHelper
     {

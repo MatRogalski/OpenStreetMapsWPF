@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace MapDisplayApp.Model
+namespace Router.Model
 {
     public class OsrmJsonRouteModel
     {

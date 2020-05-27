@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapDisplayApp.Model
+namespace Router.Model
 {
     public class TravelTimesMatrixModel
     {

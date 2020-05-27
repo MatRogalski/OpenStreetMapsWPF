@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapDisplayApp.APIHelpers
+namespace Router.APIHelpers
 {
     public static class NominatimAPIHelper
     {

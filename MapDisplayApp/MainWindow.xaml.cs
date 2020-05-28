@@ -50,12 +50,72 @@ namespace MapDisplayApp
 			//ViewModel.Polyline polyline = GetMapControlPolyLineFromOsrmApi();
 			//this.AddPolylineToMap(polyline);
 
-			var lines = GetBufferPolyline();
-			foreach(var line in lines)
-			{
-				this.AddPolylineToMap(line);
-			}
+
+
+			//var lines = GetDifferencePolyline();
+			//foreach(var line in lines)
+			//{
+			//	this.AddPolylineToMap(line);
+			//}
 			
+		}
+
+		private List<ViewModel.Polyline> GetDifferencePolyline()
+		{
+			GeoJSON.Net.Geometry.Position warszawa = new GeoJSON.Net.Geometry.Position(52.229941, 21.011105);
+			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112154, 20.382377);
+			GeoJSON.Net.Geometry.Position plock = new GeoJSON.Net.Geometry.Position(52.546665, 19.687432);
+			OsrmJsonRouteModel parsed = OsrmAPIHelper.GetOptimalRoute(warszawa, mlawa);
+			var route = parsed.ToRouteModel();
+
+			var jsonNew = OsrmAPIHelper.GetOptimalRoute(warszawa, mlawa, plock);
+			var newRoute = jsonNew.ToRouteModel();
+
+			//var oldRouteGMultiLineString = route.MultiLineString.ToSqlGeography();
+			//var newRouteGMultiLineString = newRoute.MultiLineString.ToSqlGeography();
+			//var difference = newRouteGMultiLineString.STDifference(oldRouteGMultiLineString);
+
+
+			//var oldRouteG = route.LineString.ToSqlGeography();
+			//var newRouteG = newRoute.LineString.ToSqlGeography().MakeValidIfInvalid();
+			//string isValid = newRouteG.IsValidDetailed();
+			//var difference = newRouteG.STDifference(oldRouteG);
+
+
+			Microsoft.SqlServer.Types.SqlGeography oldRouteGeography = route.MultiPointGeoJsonNet.ToSqlGeography();
+			Microsoft.SqlServer.Types.SqlGeography newRouteGeography = newRoute.MultiPointGeoJsonNet.ToSqlGeography();
+			Microsoft.SqlServer.Types.SqlGeography bufferOld = oldRouteGeography.STBuffer(1000);
+			Microsoft.SqlServer.Types.SqlGeography bufferNew = newRouteGeography.STBuffer(1000);
+			var difference = bufferNew.STDifference(bufferOld);
+
+
+			double diffArea = (double)difference.STArea();
+			double oldArea = (double)bufferOld.STArea();
+			double newArea = (double)bufferNew.STArea();
+
+			double howDifferent = diffArea / oldArea;
+
+
+
+			List<ViewModel.Polyline> lines = new List<ViewModel.Polyline>();
+			//lines.Add(GetFromSqlGeography(oldRouteGeography));
+			//lines.Add(GetFromSqlGeography(newRouteGeography));
+			//lines.Add(GetFromSqlGeography(difference));
+			//lines.Add(GetFromSqlGeography(bufferNew));
+			//lines.Add(GetFromSqlGeography(bufferOld));
+			//lines.Add(GetFromSqlGeography(oldRouteG));
+			//lines.Add(GetFromSqlGeography(newRouteG));
+			//lines.Add(GetFromSqlGeography(difference));
+			//lines.Add(GetFromSqlGeography(newRouteGMultiLineString));
+			//lines.Add(GetFromSqlGeography(oldRouteGMultiLineString));
+
+			var polylines = GetFromSqlGeographies(difference);
+			foreach(var line in polylines)
+			{
+				lines.Add(line);
+			}
+
+			return lines;
 		}
 
 		private List<ViewModel.Polyline> GetBufferPolyline()
@@ -84,7 +144,7 @@ namespace MapDisplayApp
 			{
 				Locations = new LocationCollection()
 			};
-
+			
 			for (int i = 1; i <= multiPoint.STNumPoints(); i++)
 			{
 				Microsoft.SqlServer.Types.SqlGeography point = multiPoint.STPointN(i);
@@ -93,7 +153,31 @@ namespace MapDisplayApp
 			return result;
 		}
 
-		
+		private List<ViewModel.Polyline> GetFromSqlGeographies(Microsoft.SqlServer.Types.SqlGeography sqlGeography)
+		{
+			var result = new List<ViewModel.Polyline>();
+
+			for(int i=1;i<= (int)sqlGeography.STNumGeometries(); i++) 
+			{
+				Microsoft.SqlServer.Types.SqlGeography geography = sqlGeography.STGeometryN(i);
+				var polyline = new ViewModel.Polyline()
+				{
+					Locations = new LocationCollection()
+				};
+
+				for (int j = 1; j <= geography.STNumPoints(); j++)
+				{
+					Microsoft.SqlServer.Types.SqlGeography point = geography.STPointN(j);
+					polyline.Locations.Add(new Location((double)point.Lat, (double)point.Long));
+				}
+				result.Add(polyline);
+
+			}
+
+			return result;
+		}
+
+
 		private static void MapboxAPIUsage()
 		{
 			GeoJSON.Net.Geometry.Position mlawa = new GeoJSON.Net.Geometry.Position(53.112128, 20.383661);

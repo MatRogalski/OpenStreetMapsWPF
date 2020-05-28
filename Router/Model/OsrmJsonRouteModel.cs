@@ -26,6 +26,17 @@ namespace Router.Model
             {
                 throw new ArgumentNullException("multipointGeoJsonNet");
             }
+            var lineString = GetGeoJsonNetLineString();
+            if (lineString == null)
+            {
+                throw new ArgumentNullException("lineString");
+            }
+
+            var multiLineString = GetGeoJsonNetMultiLineString();
+            if (multiLineString == null)
+            {
+                throw new ArgumentNullException("multiLineString");
+            }
 
             double distance, time;
             if(routes != null && routes.Length > 0)
@@ -42,6 +53,8 @@ namespace Router.Model
             {
                 MultiPoint = multipoint,
                 MultiPointGeoJsonNet = multipointGeoJsonNet,
+                MultiLineString = multiLineString,
+                LineString = lineString,
                 Distance = distance,
                 Time = time
             };
@@ -98,7 +111,73 @@ namespace Router.Model
             throw new ArgumentException();
         }
 
+        private GeoJSON.Net.Geometry.LineString GetGeoJsonNetLineString()
+        {
+            if (routes != null && routes.Length > 0)
+            {
+                var route = routes[0];
+                if (route.geometry != null)
+                {
+                    if (route.geometry.coordinates != null && route.geometry.coordinates.Length > 0)
+                    {
+                        List<GeoJSON.Net.Geometry.Position> positions = new List<GeoJSON.Net.Geometry.Position>();
+                        foreach (float[] coordinate in route.geometry.coordinates)
+                        {
+                            float longitude = coordinate[0];
+                            float latitude = coordinate[1];
+                            GeoJSON.Net.Geometry.Position position = new GeoJSON.Net.Geometry.Position(latitude, longitude);
+                            positions.Add(position);
+                        }
+                        return new GeoJSON.Net.Geometry.LineString(positions);
+                    }
+                }
+            }
 
+            throw new ArgumentException();
+        }
+
+        private GeoJSON.Net.Geometry.MultiLineString GetGeoJsonNetMultiLineString()
+        {
+            if (routes != null && routes.Length > 0)
+            {
+                var route = routes[0];
+                if (route.geometry != null)
+                {
+                    if (route.geometry.coordinates != null && route.geometry.coordinates.Length > 0)
+                    {
+                        int coordLength = route.geometry.coordinates.Length;
+                        bool isCoordLengthEven = coordLength % 2 == 0;
+
+                        List<GeoJSON.Net.Geometry.LineString> lineStrings = new List<GeoJSON.Net.Geometry.LineString>();                        
+
+                        for (int i = 0; i < coordLength; i+=2)
+                        {
+                            List<GeoJSON.Net.Geometry.Position> positions = new List<GeoJSON.Net.Geometry.Position>();
+                            GeoJSON.Net.Geometry.Position firstPosition = new GeoJSON.Net.Geometry.Position(route.geometry.coordinates[i][1], route.geometry.coordinates[i][0]);
+                            GeoJSON.Net.Geometry.Position secondPosition = new GeoJSON.Net.Geometry.Position(route.geometry.coordinates[i + 1][1], route.geometry.coordinates[i + 1][0]);
+                            positions.Add(firstPosition);
+                            positions.Add(secondPosition);
+
+
+                            if (!isCoordLengthEven && i == (coordLength -3))
+                            {
+                                GeoJSON.Net.Geometry.Position thirdPosition = new GeoJSON.Net.Geometry.Position(route.geometry.coordinates[i + 2][1], route.geometry.coordinates[i + 2][0]);
+                                positions.Add(thirdPosition);
+                                var lastLinestring = new GeoJSON.Net.Geometry.LineString(positions);
+                                lineStrings.Add(lastLinestring);
+                                break;
+                            }
+
+                            var lineString = new GeoJSON.Net.Geometry.LineString(positions);
+                            lineStrings.Add(lineString);
+                        }
+                        return new GeoJSON.Net.Geometry.MultiLineString(lineStrings);
+                    }
+                }
+            }
+
+            throw new ArgumentException();
+        }
 
     }
 

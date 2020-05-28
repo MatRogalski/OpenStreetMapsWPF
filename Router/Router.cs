@@ -16,13 +16,17 @@ namespace Router
 		private readonly Position endingPositions;
 		private readonly double totalAdditionalDistance;
 		private readonly double totalAdditionalTime;
+		private double totalRouteDistance;
+		private double totalRouteTime;
 		private readonly ILocalizationPointRepository repo;
 		private readonly List<Position> waypoints;
 		private RouteModel referenceRoute;
 		private RouteModel resultRoute;
+		private RouteModel lastDynamicScoreCalculatedRoute;
 		private bool doesRouteMeetParameters;
 		private bool dynamicScoreNeedsToBeRecalculated;
 
+		private const double AREA_RATIO_THRESHOLD = 0.5;
 
 		private Router()
 		{
@@ -46,8 +50,10 @@ namespace Router
 		public RouteModel GetRoute(bool useAggregatedPoints)
 		{
 			this.referenceRoute = this.GetRouteBetweenTwoPoints();
+			this.totalRouteDistance = this.referenceRoute.Distance + this.totalAdditionalDistance;
+			this.totalRouteTime = this.referenceRoute.Time + this.totalAdditionalTime;
+
 			this.resultRoute = this.referenceRoute;
-			// TODO: uncomment later
 			var availablePoints = (useAggregatedPoints ? this.repo.GetWithAggregated() : this.repo.GetWithoutAggregated()).ToList();
 			this.ProcessAvailablePoints(availablePoints, this.totalAdditionalDistance, this.totalAdditionalTime);
 			return this.resultRoute;
@@ -87,7 +93,7 @@ namespace Router
 			this.doesRouteMeetParameters = this.DoesRouteMeetParameters(newRoute, currentAdditionalDistance, currentAdditionalTime);
 			if (this.doesRouteMeetParameters)
 			{
-				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.resultRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
+				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.lastDynamicScoreCalculatedRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
 				this.UpdateResultRoute(newRoute, out currentAdditionalDistance, out currentAdditionalTime);
 			}
 			else
@@ -105,7 +111,7 @@ namespace Router
 			this.doesRouteMeetParameters = this.DoesRouteMeetParameters(newRoute, this.totalAdditionalDistance, this.totalAdditionalTime);
 			if (this.doesRouteMeetParameters)
 			{
-				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.resultRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
+				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.lastDynamicScoreCalculatedRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
 				this.UpdateResultRoute(newRoute, out currentAdditionalDistance, out currentAdditionalTime);
 			}
 		}
@@ -152,6 +158,8 @@ namespace Router
 						if (!countScore)
 							break;
 
+					// can not work because reference type
+					this.lastDynamicScoreCalculatedRoute = this.resultRoute;
 					result.ForEach(i => i.DynamicScore = (i.StaticScore ?? 0) + 1);
 					isFirstRun = false;
 					if (!countScore)
@@ -183,20 +191,27 @@ namespace Router
 
 		private bool DoesDynamicScoreNeedToBeRecalculated(RouteModel oldRoute, RouteModel newRoute, Position addedPoint)
 		{
-			//TODO: needs implementation, maybe check how much geometries differ?
-			return false;
-			//return new Random().Next(20) >= 10;
+			var oldRouteGeography = oldRoute.MultiPointGeoJsonNet.ToSqlGeography();
+			var newRouteGeography = newRoute.MultiPointGeoJsonNet.ToSqlGeography();
+			var bufferOld = oldRouteGeography.STBuffer(1000);
+			var bufferNew = newRouteGeography.STBuffer(1000);
+			var difference = bufferNew.STDifference(bufferOld);
+
+			double diffArea = (double)difference.STArea();
+			double oldArea = (double)bufferOld.STArea();
+			double newArea = (double)bufferNew.STArea();
+
+			// TODO: think about const and if ratio calculation is correct (no other way = diff/new)
+			double areaRatio = diffArea / oldArea;
+
+			return areaRatio > AREA_RATIO_THRESHOLD;
 		}
 
 		private bool DoesRouteMeetParameters(RouteModel route, double additionalDistance, double additionalTime)
 		{
-			//TODO: needs implementation
-			double totalRouteDistance = this.referenceRoute.Distance + this.totalAdditionalDistance;
-			double totalRouteTime = this.referenceRoute.Time + this.totalAdditionalTime;
-
-			if (route.Distance > totalRouteDistance)
+			if (route.Distance > this.totalRouteDistance)
 				return false;
-			if (route.Time > totalRouteTime)
+			if (route.Time > this.totalRouteTime)
 				return false;
 
 			return true;
@@ -204,7 +219,7 @@ namespace Router
 
 		private RouteModel GetRouteBetweenTwoPoints()
 		{
-			// TODO: GetSimpleRoute or GetOptimalRoute?
+			// TODO: GetSimpleRoute or GetOptimalRoute? - probably Simple
 			var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
 			return routeJson.ToRouteModel();
 		}
@@ -212,8 +227,7 @@ namespace Router
 
 		private RouteModel GetRouteBetweenTwoPoints(List<Position> waypoints)
 		{
-			// TODO: GetSimpleRoute or GetOptimalRoute?
-
+			// TODO: GetSimpleRoute or GetOptimalRoute? - probalby Optimal
 			var routeJson = OsrmAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
 			return routeJson.ToRouteModel();
 		}

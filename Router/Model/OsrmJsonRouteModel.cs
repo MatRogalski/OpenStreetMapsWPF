@@ -17,26 +17,9 @@ namespace Router.Model
         public RouteModel ToRouteModel()
         {
             var multipoint = GetNetTopologySuiteMultiPoint();
-            if(multipoint == null)
-            {
-                throw new ArgumentNullException("multipoint");
-            }
             var multipointGeoJsonNet = GetGeoJsonNetMultiPoint();
-            if (multipointGeoJsonNet == null)
-            {
-                throw new ArgumentNullException("multipointGeoJsonNet");
-            }
             var lineString = GetGeoJsonNetLineString();
-            if (lineString == null)
-            {
-                throw new ArgumentNullException("lineString");
-            }
-
             var multiLineString = GetGeoJsonNetMultiLineString();
-            if (multiLineString == null)
-            {
-                throw new ArgumentNullException("multiLineString");
-            }
 
             double distance, time;
             if(routes != null && routes.Length > 0)
@@ -56,7 +39,8 @@ namespace Router.Model
                 MultiLineString = multiLineString,
                 LineString = lineString,
                 Distance = distance,
-                Time = time
+                Time = time,
+                Waypoints = waypoints
             };
         }
 
@@ -188,6 +172,8 @@ namespace Router.Model
         public float distance { get; set; }
         public string name { get; set; }
         public float[] location { get; set; }
+        public int waypoint_index { get; set; }
+        public int trips_index { get; set; }
     }
 
     public class Route

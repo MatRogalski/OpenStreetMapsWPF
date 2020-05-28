@@ -13,5 +13,6 @@ namespace Router.Model
         public GeoJSON.Net.Geometry.MultiLineString MultiLineString { get; set; }
         public double Distance { get; set; }
         public double Time { get; set; }
+        public Waypoint[] Waypoints { get; set; }
     }
 }

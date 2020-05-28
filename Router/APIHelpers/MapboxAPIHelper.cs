@@ -17,6 +17,16 @@ namespace Router.APIHelpers
     {
         private const string API_KEY = "pk.eyJ1IjoibWlsdGVuNiIsImEiOiJja2FsOW53YmIwOXRlMnhteWNyczdyMzF0In0.8w1TkiipRjW35bNlfH7kYQ";
 
+        public static OsrmJsonRouteModel GetOptimalRoute(Position first, Position last, params Position[] intermediates)
+        {
+            Position[] positions = PositionArrayUtils.GetPositionsArray(first, last, intermediates);
+            string positionsString = StringUtils.GetStringFromPositions(positions);
+            string uri = $"https://api.mapbox.com/optimized-trips/v1/mapbox/driving/{positionsString}?source=first&destination=last&roundtrip=false&access_token={API_KEY}&geometries=geojson&overview=full";
+            string html = HttpProxy.DownloadResource(uri);
+            OsrmJsonRouteModel parsed = JsonConvert.DeserializeObject<OsrmJsonRouteModel>(html);
+            return parsed;
+        }
+
         public static Polygon GetIsochroneAsPolygon(Position position, int contourMinutes)
         {
             FeatureCollection isochronesFeatureCollection = GetIsochronesFeatureCollection(position, contourMinutes);

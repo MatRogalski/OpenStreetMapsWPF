@@ -28,6 +28,8 @@ namespace Router
 
 		private const double AREA_RATIO_THRESHOLD = 0.5;
 
+		public RouteModel ReferenceRoute { get { return referenceRoute; } }
+
 		private Router()
 		{
 			// TODO: change from mock
@@ -118,15 +120,11 @@ namespace Router
 
 		private void UpdateResultRoute(RouteModel newRoute, out double currentAdditionalDistance, out double currentAdditionalTime)
 		{
-			//TODO: current additional distance and current additional time needs to be updated every result route update, this is only mock
-			double referenceDistance = this.referenceRoute.Distance;
-			double referenceTime = this.referenceRoute.Time;
-
 			double currentDistance = newRoute.Distance;
 			double currentTime = newRoute.Time;
 
-			currentAdditionalDistance = referenceDistance + totalAdditionalDistance - currentDistance;
-			currentAdditionalTime = referenceTime + totalAdditionalTime - currentTime;
+			currentAdditionalDistance = this.totalRouteDistance - currentDistance;
+			currentAdditionalTime = this.totalRouteTime - currentTime;
 			this.resultRoute = newRoute;
 		}
 

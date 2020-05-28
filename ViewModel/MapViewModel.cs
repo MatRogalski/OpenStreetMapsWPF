@@ -3,6 +3,7 @@ using MapControl;
 using NetTopologySuite.IO;
 using OsmSharp.API;
 using Router;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -85,15 +86,28 @@ namespace ViewModel
         }
         private void CalculateRouteExecute()
         {
-            var coordinateAPI = new CoordinateAPI();
-            NetTopologySuite.Geometries.Point startingPoint = coordinateAPI.GetCoordinatesByLocationName(this.UserInputData.StartingPoint);
-            NetTopologySuite.Geometries.Point endingPoint = coordinateAPI.GetCoordinatesByLocationName(this.UserInputData.EndingPoint);
-            double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin);
+            var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
+            var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
+            GeoJSON.Net.Geometry.Position startingPoint = new GeoJSON.Net.Geometry.Position(startingPosition.Latitude, startingPosition.Longitude);
+            GeoJSON.Net.Geometry.Position endingPoint = new GeoJSON.Net.Geometry.Position(endingPosition.Latitude, endingPosition.Longitude);
+            
+            double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin) * 60;
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
+
             var router = new Router.Router(startingPoint, endingPoint, additionalDistance, additionalTime);
-            NetTopologySuite.Geometries.MultiPoint route = router.GetRoute(false);
-            Polyline polyline = this.GetFromMultiPoint(route);
+            Router.Model.RouteModel route = router.GetRoute(false);            
+            Polyline polyline = this.GetFromMultiPoint(route.MultiPoint);
             this.Polylines.Add(polyline);
+
+            Router.Model.RouteModel referenceRoute = router.ReferenceRoute;
+            Polyline polylineReference = this.GetFromMultiPoint(referenceRoute.MultiPoint);
+            this.Polylines.Add(polylineReference);
+
+            List<PointItem> pointItemsRoute = this.GetFromRouteModel(route);
+            foreach(var pointItem in pointItemsRoute)
+            {
+                this.Pushpins.Add(pointItem);
+            }
         }
         private bool CanCalculateRoute(object obj)
         {
@@ -116,6 +130,25 @@ namespace ViewModel
             {
                 result.Locations.Add(new Location(point.Y, point.X));
             }
+            return result;
+        }
+
+        private List<PointItem> GetFromRouteModel(Router.Model.RouteModel routeModel)
+        {
+            var result = new List<PointItem>();
+
+            for(int i = 0; i < routeModel.Waypoints.Length; i++) 
+            {
+                int waypointIndex = routeModel.Waypoints[i].waypoint_index;
+
+                PointItem pointItem = new PointItem()
+                {
+                    Name = $"{++waypointIndex}. Nazwa: {routeModel.Waypoints[i].name}",
+                    Location = new Location(routeModel.Waypoints[i].location[1], routeModel.Waypoints[i].location[0])
+                };
+                result.Add(pointItem);
+            }
+
             return result;
         }
 
@@ -186,7 +219,6 @@ namespace ViewModel
                 Name = "Eckwarderhörne",
                 Location = new Location(53.5207, 8.2323)
             });
-
             this.Polylines.Add(new Polyline
             {
                 Locations = LocationCollection.Parse("53.5140,8.1451 53.5123,8.1506 53.5156,8.1623 53.5276,8.1757 53.5491,8.1852 53.5495,8.1877 53.5426,8.1993 53.5184,8.2219 53.5182,8.2386 53.5195,8.2387")

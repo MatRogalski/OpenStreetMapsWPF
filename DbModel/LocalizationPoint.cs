@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+﻿using GeoJSON.Net.Geometry;
+using Microsoft.SqlServer.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,14 +12,13 @@ namespace DbModel
 	{
 		[Key]
 		public long? PointId { get; set; }
-		public Point Coordinate { get; set; }
+		public Point Point { get; set; }
 		public string PostalCode { get; set; }
 		public string Region { get; set; }
 		public string District { get; set; }
 		public string City { get; set; }
 		public string Street { get; set; }
 		public string Number { get; set; }
-
 
 
 		public double? StaticScore { get; set; }

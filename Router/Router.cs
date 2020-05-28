@@ -1,55 +1,32 @@
 ﻿using DbConnector.Repositories;
 using DbModel;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Operation.Buffer;
+using GeoJSON.Net.Contrib.MsSqlSpatial;
+using GeoJSON.Net.Geometry;
+using Router.APIHelpers;
+using Router.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Router
 {
-	public class Router
+	public class Router : BaseRouter
 	{
-		private readonly Point startingPoint;
-		private readonly Point endingPoint;
-		private readonly double totalAdditionalDistance;
-		private readonly double totalAdditionalTime;
-		private readonly LocalizationPointRepository repo;
-		private readonly List<Point> waypoints;
-		private MultiPoint referenceRoute;
-		private MultiPoint resultRoute;
-		private bool doesRouteMeetParameters;
+		private RouteModel lastDynamicScoreCalculatedRoute;		
 		private bool dynamicScoreNeedsToBeRecalculated;
 
+		private const double AREA_RATIO_THRESHOLD = 0.5;
 
-		private Router()
+		
+		public Router(Position startingPoint, Position endingPoint, double additionalDistance, double additionalTime) : base(startingPoint, endingPoint, additionalDistance, additionalTime)
 		{
-			this.repo = new LocalizationPointRepository();
-			this.waypoints = new List<Point>();
 			this.doesRouteMeetParameters = true;
 			this.dynamicScoreNeedsToBeRecalculated = true;
 		}
-
-		public Router(Point startingPoint, Point endingPoint, double additionalDistance, double additionalTime) : this()
+		
+		protected override void ProcessAvailablePoints(List<LocalizationPoint> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
 		{
-			this.startingPoint = startingPoint;
-			this.endingPoint = endingPoint;
-			this.totalAdditionalDistance = additionalDistance;
-			this.totalAdditionalTime = additionalTime;
-		}
-
-
-		public MultiPoint GetRoute(bool useAggregatedPoints)
-		{
-			this.referenceRoute = this.GetRouteBetweenTwoPoints();
-			this.resultRoute = this.referenceRoute;
-			var availablePoints = (useAggregatedPoints ? this.repo.GetWithAggregated() : this.repo.GetWithoutAggregated()).ToList();
-			this.ProcessAvailablePoints(availablePoints, this.totalAdditionalDistance, this.totalAdditionalTime);
-			return this.resultRoute;
-		}
-
-		private void ProcessAvailablePoints(List<LocalizationPoint> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
-		{
+			// TODO: think about not processsing multiple times points that are aggregated 
 			while (this.doesRouteMeetParameters)
 			{
 				availablePoints = this.GetPointsDynamicScoreUsingBuffer(availablePoints, currentAdditionalDistance, currentAdditionalTime, countScore: this.dynamicScoreNeedsToBeRecalculated, stepSize);
@@ -60,6 +37,7 @@ namespace Router
 				LocalizationPoint biggestScorePoint = availablePoints.Aggregate((i1, i2) => i1.DynamicScore > i2.DynamicScore ? i1 : i2);
 
 				availablePoints.Remove(biggestScorePoint);
+				// TODO: think about if biggestScorePoint = aggregated -> remove all child points
 
 				if (biggestScorePoint.StaticScore == 0)
 				{
@@ -76,13 +54,14 @@ namespace Router
 		{
 			List<LocalizationPoint> innerPoints = this.repo.GetByParentId(biggestScorePoint.PointId.Value);
 			var tempWaypoints = this.waypoints.Select(i => i).ToList();
-			tempWaypoints.AddRange(innerPoints.Select(i => i.Coordinate));
+			tempWaypoints.AddRange(innerPoints.Select(i => (Position)i.Point.Coordinates));
 
-			MultiPoint newRoute = this.GetRouteBetweenTwoPoints(tempWaypoints);
+			RouteModel newRoute = this.GetRouteBetweenTwoPoints(tempWaypoints);
 			this.doesRouteMeetParameters = this.DoesRouteMeetParameters(newRoute, currentAdditionalDistance, currentAdditionalTime);
 			if (this.doesRouteMeetParameters)
 			{
-				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.resultRoute, newRoute, biggestScorePoint.Coordinate);
+				this.waypoints.AddRange(tempWaypoints);
+				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.lastDynamicScoreCalculatedRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
 				this.UpdateResultRoute(newRoute, out currentAdditionalDistance, out currentAdditionalTime);
 			}
 			else
@@ -94,22 +73,24 @@ namespace Router
 
 		private void AddSimplePoint(LocalizationPoint biggestScorePoint, ref double currentAdditionalDistance, ref double currentAdditionalTime)
 		{
-			this.waypoints.Add(biggestScorePoint.Coordinate);
-			MultiPoint newRoute = this.GetRouteBetweenTwoPoints(this.waypoints);
+			this.waypoints.Add((Position)biggestScorePoint.Point.Coordinates);
+			RouteModel newRoute = this.GetRouteBetweenTwoPoints(this.waypoints);
 
 			this.doesRouteMeetParameters = this.DoesRouteMeetParameters(newRoute, this.totalAdditionalDistance, this.totalAdditionalTime);
 			if (this.doesRouteMeetParameters)
 			{
-				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.resultRoute, newRoute, biggestScorePoint.Coordinate);
+				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.lastDynamicScoreCalculatedRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
 				this.UpdateResultRoute(newRoute, out currentAdditionalDistance, out currentAdditionalTime);
 			}
 		}
 
-		private void UpdateResultRoute(MultiPoint newRoute, out double currentAdditionalDistance, out double currentAdditionalTime)
+		private void UpdateResultRoute(RouteModel newRoute, out double currentAdditionalDistance, out double currentAdditionalTime)
 		{
-			//TODO: current additional distance and current additional time needs to be updated every result route update, this is only mock
-			currentAdditionalDistance = this.totalAdditionalDistance * new Random().NextDouble();
-			currentAdditionalTime = this.totalAdditionalTime * new Random().NextDouble();
+			double currentDistance = newRoute.Distance;
+			double currentTime = newRoute.Time;
+
+			currentAdditionalDistance = this.maxAllowedRouteDistance - currentDistance;
+			currentAdditionalTime = this.maxAllowedRouteTime - currentTime;
 			this.resultRoute = newRoute;
 		}
 
@@ -118,7 +99,7 @@ namespace Router
 		{
 			var result = new List<LocalizationPoint>();
 			double halfOfAdditionalDistance = additionalDistance / 2;
-			var buffer = new BufferOp(this.resultRoute);
+			Microsoft.SqlServer.Types.SqlGeography routeSqlGeography = this.resultRoute.MultiPointGeoJsonNet.ToSqlGeography();
 
 			int bufferSize = (int)halfOfAdditionalDistance;
 
@@ -131,11 +112,18 @@ namespace Router
 
 			while (bufferSize > 0)
 			{
-				Geometry geometry = buffer.GetResultGeometry(bufferSize);
+				Microsoft.SqlServer.Types.SqlGeography bufferSqlGeography = routeSqlGeography.STBuffer(bufferSize);
 
 				if (isFirstRun)
 				{
-					result = points.Where(i => geometry.Contains(i.Coordinate)).ToList();
+					result = points.Where(i => (bool)bufferSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();
+
+					if (result.Any(i => i.DynamicScore > 0))
+						if (!countScore)
+							break;
+
+					// can not work because reference type
+					this.lastDynamicScoreCalculatedRoute = this.resultRoute;
 					result.ForEach(i => i.DynamicScore = (i.StaticScore ?? 0) + 1);
 					isFirstRun = false;
 					if (!countScore)
@@ -143,7 +131,7 @@ namespace Router
 				}
 				else
 				{
-					points.Where(i => geometry.Contains(i.Coordinate)).ToList().ForEach(i => ++i.DynamicScore);
+					points.Where(i => (bool)bufferSqlGeography.STContains(i.Point.ToSqlGeography())).ToList().ForEach(i => ++i.DynamicScore);
 				}
 
 				bufferSize -= step;
@@ -165,38 +153,25 @@ namespace Router
 			}
 		}
 
-		private bool DoesDynamicScoreNeedToBeRecalculated(MultiPoint oldRoute, MultiPoint newRoute, Point addedPoint)
+		private bool DoesDynamicScoreNeedToBeRecalculated(RouteModel oldRoute, RouteModel newRoute, Position addedPoint)
 		{
-			//TODO: needs implementation
+			var oldRouteGeography = oldRoute.MultiPointGeoJsonNet.ToSqlGeography();
+			var newRouteGeography = newRoute.MultiPointGeoJsonNet.ToSqlGeography();
+			var bufferOld = oldRouteGeography.STBuffer(1000);
+			var bufferNew = newRouteGeography.STBuffer(1000);
+			var difference = bufferNew.STDifference(bufferOld);
 
-			return new Random().Next(20) >= 10;
+			double diffArea = (double)difference.STArea();
+			double oldArea = (double)bufferOld.STArea();
+			double newArea = (double)bufferNew.STArea();
+
+			// TODO: think about const and if ratio calculation is correct (no other way = diff/new)
+			double areaRatio = diffArea / oldArea;
+
+			return areaRatio > AREA_RATIO_THRESHOLD;
 		}
 
-		private bool DoesRouteMeetParameters(MultiPoint route, double additionalDistance, double additionalTime)
-		{
-			//TODO: needs implementation
+		
 
-			return new Random().Next(20) >= 2;
-		}
-
-		private MultiPoint GetRouteBetweenTwoPoints()
-		{
-			//TODO: needs implementation
-
-			return new MultiPoint(new Point[] { this.startingPoint, this.endingPoint });
-		}
-
-
-		private MultiPoint GetRouteBetweenTwoPoints(List<Point> waypoints)
-		{
-			//TODO: needs implementation
-
-			var points = new List<Point>();
-			points.Add(this.startingPoint);
-			points.AddRange(waypoints);
-			points.Add(this.endingPoint);
-
-			return new MultiPoint(points.ToArray());
-		}
 	}
 }

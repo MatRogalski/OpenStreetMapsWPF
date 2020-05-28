@@ -24,18 +24,18 @@ namespace Router.APIHelpers
             OsrmJsonRouteModel parsed = JsonConvert.DeserializeObject<OsrmJsonRouteModel>(html);
             return parsed;
         }
-
+        
         public static OsrmJsonRouteModel GetSimpleRoute(string sourceQuery, string destinationQuery, params Position[] intermediates)
         {
             Position source = NominatimAPIHelper.GetPositionForAddress(sourceQuery);
             Position destination = NominatimAPIHelper.GetPositionForAddress(destinationQuery);
-            Position[] positions = GetPositionsArray(source, destination, intermediates);
+            Position[] positions = PositionArrayUtils.GetPositionsArray(source, destination, intermediates);
             return GetSimpleRoute(positions);
         }
 
         public static OsrmJsonRouteModel GetOptimalRoute(Position first, Position last, params Position[] intermediates)
         {
-            Position[] positions = GetPositionsArray(first, last, intermediates);
+            Position[] positions = PositionArrayUtils.GetPositionsArray(first, last, intermediates);
             string positionsString = StringUtils.GetStringFromPositions(positions);
             string uri = $"http://router.project-osrm.org/trip/v1/driving/{positionsString}?roundtrip=false&source=first&destination=last&geometries=geojson&overview=full";
             string html = HttpProxy.DownloadResource(uri);
@@ -64,14 +64,7 @@ namespace Router.APIHelpers
         }
                 
 
-        private static Position[] GetPositionsArray(Position source, Position destination, Position[] intermediates)
-        {
-            Position[] positions = new Position[intermediates.Length + 2];
-            positions[0] = source;
-            Array.Copy(intermediates, 0, positions, 1, intermediates.Length);
-            positions[positions.Length - 1] = destination;
-            return positions;
-        }
+        
 
         
 

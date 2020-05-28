@@ -1,6 +1,6 @@
 ﻿using DbConnector.Repositories;
 using DbModel;
-using NetTopologySuite.Geometries;
+using GeoJSON.Net.Geometry;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,7 +33,7 @@ namespace DatabaseInitialFeeder
 
 					var localizationPoint = new LocalizationPoint()
 					{
-						Coordinate = new Point(longitude, latitude) { SRID = 4326 }, //this refers to EPSG 4326
+						Point = new Point(new Position(latitude,longitude)),
 						Number = splitted[2],
 						Street = splitted[3],
 						City = splitted[5],

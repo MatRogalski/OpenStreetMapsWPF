@@ -20,7 +20,7 @@ namespace Router.APIHelpers
             };
             var geocodeResponses = geocoder.Geocode(request);
             geocodeResponses.Wait();
-            return geocodeResponses.Result == null ? geocodeResponses.Result[0] : null;
+            return geocodeResponses.Result == null ? null : geocodeResponses.Result[0];
         }
 
         public static Position GetPositionForAddress(string addressquery)

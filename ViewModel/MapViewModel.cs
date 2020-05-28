@@ -88,13 +88,12 @@ namespace ViewModel
         {
             var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
             var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
-
             GeoJSON.Net.Geometry.Position startingPoint = new GeoJSON.Net.Geometry.Position(startingPosition.Latitude, startingPosition.Longitude);
             GeoJSON.Net.Geometry.Position endingPoint = new GeoJSON.Net.Geometry.Position(endingPosition.Latitude, endingPosition.Longitude);
-
-
+            
             double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin) * 60;
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
+
             var router = new Router.Router(startingPoint, endingPoint, additionalDistance, additionalTime);
             Router.Model.RouteModel route = router.GetRoute(false);            
             Polyline polyline = this.GetFromMultiPoint(route.MultiPoint);

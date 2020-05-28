@@ -51,7 +51,6 @@ namespace MapDisplayApp
 			//this.AddPolylineToMap(polyline);
 
 
-
 			//var lines = GetDifferencePolyline();
 			//foreach(var line in lines)
 			//{
@@ -59,6 +58,7 @@ namespace MapDisplayApp
 			//}
 			
 		}
+
 
 		private List<ViewModel.Polyline> GetDifferencePolyline()
 		{

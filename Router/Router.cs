@@ -112,17 +112,16 @@ namespace Router
 
 			while (bufferSize > 0)
 			{
-				Microsoft.SqlServer.Types.SqlGeography bufferSqlGeography = routeSqlGeography.STBuffer(bufferSize);
-
 				if (isFirstRun)
 				{
-					result = points.Where(i => (bool)bufferSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();
-
-					if (result.Any(i => i.DynamicScore > 0))
+					if (points.Any(i => i.DynamicScore > 0))
 						if (!countScore)
-							break;
+							return points;
 
-					// can not work because reference type
+					Microsoft.SqlServer.Types.SqlGeography bufferSqlGeography = routeSqlGeography.STBuffer(bufferSize);
+					result = points.Where(i => (bool)bufferSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();					
+
+					// may not work because reference type - seems to work
 					this.lastDynamicScoreCalculatedRoute = this.resultRoute;
 					result.ForEach(i => i.DynamicScore = (i.StaticScore ?? 0) + 1);
 					isFirstRun = false;
@@ -131,6 +130,7 @@ namespace Router
 				}
 				else
 				{
+					Microsoft.SqlServer.Types.SqlGeography bufferSqlGeography = routeSqlGeography.STBuffer(bufferSize);
 					points.Where(i => (bool)bufferSqlGeography.STContains(i.Point.ToSqlGeography())).ToList().ForEach(i => ++i.DynamicScore);
 				}
 

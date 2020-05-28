@@ -28,7 +28,7 @@ namespace Router
 
 		protected BaseRouter()
 		{
-			this.repo = new MockLocalizationPointRepository();
+			this.repo = new MockLocalizationPointRepositoryMazowieckie();
 			this.waypoints = new List<Position>();
 		}
 

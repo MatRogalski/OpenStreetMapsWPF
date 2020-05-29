@@ -14,7 +14,7 @@ namespace Router
 		{
 		}
 
-		protected override void ProcessAvailablePoints(List<LocalizationPoint> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
+		protected override void ProcessAvailablePoints(List<LocalizationPointDto> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
         {
 			var allPointsCombinations = GetPowerSet(availablePoints);
 

@@ -75,7 +75,7 @@ namespace DatabaseInitialFeeder
 				// take points that are not parent or child points in aggregation
 				var pointsWithoutParentPoint = points.Where(i => i.ParentPointId == null && i.StaticScore == 0 && !mappedPointsIds.Contains(i.PointId.Value)).ToList();
 				var pointsInsideIsochrone = pointsWithoutParentPoint.Where(i => (bool)isochroneSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();
-				if (pointsInsideIsochrone.Any())
+				if (pointsInsideIsochrone.Count > 1)
 				{
 					Position[] positionsInsideIsochrone = pointsInsideIsochrone.Where(x => x.PointId != dbPoint.PointId).Select(x => (Position)x.Point.Coordinates).ToArray();
 

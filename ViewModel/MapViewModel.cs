@@ -110,7 +110,7 @@ namespace ViewModel
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
 
             var router = new Router.Router(startingPoint, endingPoint, additionalDistance, additionalTime);
-            Router.Model.RouteModel route = router.GetRoute(false);
+            Router.Model.RouteModel route = router.GetRoute(true);
             Polyline polyline = this.GetFromMultiPoint(route.MultiPoint);
             polyline.Color = "Blue";
             polyline.StrokeThickness = 6;

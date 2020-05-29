@@ -88,6 +88,10 @@ namespace Router
 				this.dynamicScoreNeedsToBeRecalculated = this.DoesDynamicScoreNeedToBeRecalculated(this.lastDynamicScoreCalculatedRoute, newRoute, (Position)biggestScorePoint.Point.Coordinates);
 				this.UpdateResultRoute(newRoute, out currentAdditionalDistance, out currentAdditionalTime);
 			}
+			else
+			{
+				this.waypoints.RemoveAt(waypoints.Count() - 1);
+			}
 		}
 
 		private void UpdateResultRoute(RouteModel newRoute, out double currentAdditionalDistance, out double currentAdditionalTime)

@@ -47,7 +47,18 @@ namespace ViewModel
 
     public class Polyline
     {
+		public Polyline()
+		{
+			this.Color = "Brown";
+			this.StrokeThickness = 3;
+		}
+
+
         public LocationCollection Locations { get; set; }
+
+        public string Color { get; set; }
+
+        public int StrokeThickness { get; set; }
     }
 
     public class MapViewModel : ViewModelBase
@@ -57,8 +68,7 @@ namespace ViewModel
             this.CanStartRouteCalculation = this.CanCalculateRoute(sender);                 
         }
 
-        private Location mapCenter = new Location(53.5, 8.2);
-        //private Location mapCenter = new Location(45.532400f, -73.622885f);
+        private Location mapCenter = new Location(52.237049f, 21.017532f);
         public Location MapCenter
         {
             get { return this.mapCenter; }
@@ -86,6 +96,7 @@ namespace ViewModel
         }
         private void CalculateRouteExecute()
         {
+            this.Polylines.Clear();
             var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
             var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
             GeoJSON.Net.Geometry.Position startingPoint = new GeoJSON.Net.Geometry.Position(startingPosition.Latitude, startingPosition.Longitude);
@@ -95,12 +106,16 @@ namespace ViewModel
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
 
             var router = new Router.Router(startingPoint, endingPoint, additionalDistance, additionalTime);
-            Router.Model.RouteModel route = router.GetRoute(false);            
+            Router.Model.RouteModel route = router.GetRoute(false);
             Polyline polyline = this.GetFromMultiPoint(route.MultiPoint);
+            polyline.Color = "Blue";
+            polyline.StrokeThickness = 6;
             this.Polylines.Add(polyline);
 
             Router.Model.RouteModel referenceRoute = router.ReferenceRoute;
             Polyline polylineReference = this.GetFromMultiPoint(referenceRoute.MultiPoint);
+            polylineReference.Color = "Red"; 
+            polylineReference.StrokeThickness = 3; 
             this.Polylines.Add(polylineReference);
 
             List<PointItem> pointItemsRoute = this.GetFromRouteModel(route);
@@ -167,66 +182,6 @@ namespace ViewModel
         {
             this.UserInputData = new UserInputData();
             this.UserInputData.PropertyChanged += this.UserInputData_PropertyChanged;
-
-            this.Points.Add(new PointItem
-            {
-                Name = "Steinbake Leitdamm",
-                Location = new Location(53.51217, 8.16603)
-            });
-            this.Points.Add(new PointItem
-            {
-                Name = "Buhne 2",
-                Location = new Location(53.50926, 8.15815)
-            });
-            this.Points.Add(new PointItem
-            {
-                Name = "Buhne 4",
-                Location = new Location(53.50468, 8.15343)
-            });
-            this.Points.Add(new PointItem
-            {
-                Name = "Buhne 6",
-                Location = new Location(53.50092, 8.15267)
-            });
-            this.Points.Add(new PointItem
-            {
-                Name = "Buhne 8",
-                Location = new Location(53.49871, 8.15321)
-            });
-            this.Points.Add(new PointItem
-            {
-                Name = "Buhne 10",
-                Location = new Location(53.49350, 8.15563)
-            });
-
-            this.Pushpins.Add(new PointItem
-            {
-                Name = "WHV - Eckwarderhörne",
-                Location = new Location(53.5495, 8.1877)
-            });
-            this.Pushpins.Add(new PointItem
-            {
-                Name = "JadeWeserPort",
-                Location = new Location(53.5914, 8.14)
-            });
-            this.Pushpins.Add(new PointItem
-            {
-                Name = "Kurhaus Dangast",
-                Location = new Location(53.447, 8.1114)
-            });
-            this.Pushpins.Add(new PointItem
-            {
-                Name = "Eckwarderhörne",
-                Location = new Location(53.5207, 8.2323)
-            });
-            this.Polylines.Add(new Polyline
-            {
-                Locations = LocationCollection.Parse("53.5140,8.1451 53.5123,8.1506 53.5156,8.1623 53.5276,8.1757 53.5491,8.1852 53.5495,8.1877 53.5426,8.1993 53.5184,8.2219 53.5182,8.2386 53.5195,8.2387")
-            });
-            this.Polylines.Add(new Polyline
-            {
-                Locations = LocationCollection.Parse("53.5978,8.1212 53.6018,8.1494 53.5859,8.1554 53.5852,8.1531 53.5841,8.1539 53.5802,8.1392 53.5826,8.1309 53.5867,8.1317 53.5978,8.1212")
-            });
         }
     }
 }

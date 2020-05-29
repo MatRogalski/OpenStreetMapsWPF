@@ -9,6 +9,7 @@
     <Import_RootNamespace>ViewModel</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ColorHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MapLayers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MapViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RelayCommand.cs" />

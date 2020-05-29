@@ -26,6 +26,10 @@ using Router.Utils;
 using Router.APIHelpers;
 using NetTopologySuite.Operation.Buffer;
 using GeoJSON.Net.Contrib.MsSqlSpatial;
+using DbConnector.Repositories;
+using GeoJSON.Net.Geometry;
+using Microsoft.SqlServer.Types;
+using DbModel;
 
 namespace MapDisplayApp
 {
@@ -44,6 +48,10 @@ namespace MapDisplayApp
 
 			this.InitializeComponent();
 
+
+
+			//InsertAggregatedPointsToDb();
+
 			//OsrmTravelTimeTableUsage();
 			//MapboxAPIUsage();
 
@@ -56,9 +64,155 @@ namespace MapDisplayApp
 			//{
 			//	this.AddPolylineToMap(line);
 			//}
-			
+
 		}
 
+		private void InsertAggregatedPointsToDb()
+		{
+			var repo = new MockLocalizationPointRepositoryMazowieckie();
+			var pointItems = GetPointsItemsFromRepo(repo);
+			foreach(var pointItem in pointItems)
+			{
+				(this.DataContext as MapViewModel).Pushpins.Add(pointItem);
+			}
+
+			var points = repo.GetWithoutAggregated();
+
+			for (int i = 0; i < points.Count(); i++)
+			{
+				if (points.ElementAt(i).ParentPointId != null || points.ElementAt(i).StaticScore != 0)
+					continue;
+
+				var isochrone = MapboxAPIHelper.GetIsochroneAsPolygon((Position)points.ElementAt(i).Point.Coordinates, 15);
+				SqlGeography isochroneSqlGeography = isochrone.ToSqlGeography().MakeValid();
+				isochroneSqlGeography = GetCorrectlyOrientedGeography(isochroneSqlGeography);
+				this.AddPolylineToMap(GetFromSqlGeography(isochroneSqlGeography));
+
+				// take points that are not parent or child points in aggregation
+				var pointsWithoutParentPoint = points.Where(i => i.ParentPointId == null && i.StaticScore == 0).ToList();
+				var pointsInsideIsochrone = pointsWithoutParentPoint.Where(i => (bool)isochroneSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();
+				if (pointsInsideIsochrone.Count() > 1)
+				{
+					var positionsInsideIsochrone = pointsInsideIsochrone.Where(x => x.PointId != points.ElementAt(i).PointId).Select(x => (Position)x.Point.Coordinates).ToArray();
+					var travelTimesMatrixModel = OsrmAPIHelper.GetTravelTimesMatrix((Position)points.ElementAt(i).Point.Coordinates, positionsInsideIsochrone);
+					var durationsList = travelTimesMatrixModel.durations[0].ToList();
+					var durationsListSortedWithIndexes = durationsList.Select((x, index) => new KeyValuePair<int, float>(index, x)).OrderBy(x => x.Value).ToList();
+
+					// get route that innerdistance and time is no longer than 30min and x? km
+					RouteModel resultRoute;
+					double maxInnerDistance = 30 * 1000;
+					double maxInnerTime = 15 * 60;
+					var pointIds = GetRouteMeetingConditionsAndPointIds(durationsListSortedWithIndexes.Select(x => x.Key).ToList(), pointsInsideIsochrone, maxInnerDistance, maxInnerTime, out resultRoute);
+
+					if(pointIds != null)
+					{
+						// Create aggregated point
+						var aggregatedPoint = GetAggregatedPoint(pointIds, pointsWithoutParentPoint, resultRoute.Distance, resultRoute.Time);
+						points.Add(aggregatedPoint);
+						// Update parentId for child points
+						var updatedPoints = GetUpdatedChildPointsWithParentId(pointIds, ref points, aggregatedPoint.PointId);
+					}
+
+				}
+
+			}
+
+		}
+
+		private List<long?> GetRouteMeetingConditionsAndPointIds(List<int> indexesOfDurationList, List<DbModel.LocalizationPointDto> pointsInsideIsochrone, double maxInnerDistance, double maxInnerTime, out RouteModel route)
+		{
+			var sortedPointsByDuration = new List<DbModel.LocalizationPointDto>();
+			foreach(var index in indexesOfDurationList)
+			{
+				sortedPointsByDuration.Add(pointsInsideIsochrone.ElementAt(index));
+			}
+
+			bool doesRouteMeetParameters = false;
+			route = null;
+			while (!doesRouteMeetParameters)
+			{
+				var routeJson = OsrmAPIHelper.GetOptimalRoute(sortedPointsByDuration.Select(x => (Position)x.Point.Coordinates).ToArray());
+				if(routeJson == null)
+				{
+					route = null;
+					return null;
+				}
+				route = routeJson.ToRouteModel();
+				doesRouteMeetParameters = DoesInnerRouteMeetParameters(route, maxInnerDistance, maxInnerTime);
+				if (!doesRouteMeetParameters)
+				{
+					sortedPointsByDuration.RemoveAt(sortedPointsByDuration.Count() - 1);
+				}
+			}
+
+			var pointIds = sortedPointsByDuration.Select(x => x.PointId).ToList();
+			return pointIds;
+		}
+
+		private bool DoesInnerRouteMeetParameters(RouteModel route, double maxInnerDistance, double maxInnerTime)
+		{
+			return route.Distance <= maxInnerDistance && route.Time <= maxInnerTime;
+		}
+
+		private List<LocalizationPointDto> GetUpdatedChildPointsWithParentId(List<long?> pointIds, ref List<DbModel.LocalizationPointDto> points, long? parentId) 
+		{
+			points.Where(x => pointIds.Contains(x.PointId)).ToList().ForEach(x => x.ParentPointId = parentId);
+			var pointsWithIds = points.Where(x => pointIds.Contains(x.PointId)).ToList();
+			return pointsWithIds;
+		}
+
+		private LocalizationPointDto GetAggregatedPoint(List<long?> pointIds, List<DbModel.LocalizationPointDto> points, double innerDistance, double innerTime)
+		{
+			var localizationPoint = new LocalizationPointDto()
+			{
+				PointId = 13,
+				Point = new GeoJSON.Net.Geometry.Point(GetPositionForAggregatedPoint(pointIds,points)),
+				StaticScore = pointIds.Count(),
+				InnerDistance = innerDistance,
+				InnerTime = innerTime
+			};
+			return localizationPoint;
+		}
+
+		private Position GetPositionForAggregatedPoint(List<long?> pointIds, List<DbModel.LocalizationPointDto> points)
+		{
+			var pointsWithIds = points.Where(x => pointIds.Contains(x.PointId)).ToList();
+			var longitude = pointsWithIds.Select(x => x.Point.Coordinates.Longitude).DefaultIfEmpty(0).Average();
+			var latitude = pointsWithIds.Select(x => x.Point.Coordinates.Latitude).DefaultIfEmpty(0).Average();
+
+			return new Position(latitude, longitude);
+		}
+
+		private SqlGeography GetCorrectlyOrientedGeography(SqlGeography geography)
+		{
+			var invertedSqlGeography = geography.ReorientObject();
+			if (geography.STArea() > invertedSqlGeography.STArea())
+			{
+				return invertedSqlGeography;
+			}
+			return geography;
+		}
+
+
+
+
+		private List<PointItem> GetPointsItemsFromRepo(ILocalizationPointRepository repo)
+		{
+			var result = new List<PointItem>();
+			var points = repo.GetWithoutAggregated();
+
+			foreach(var point in points)
+			{
+				PointItem pointItem = new PointItem()
+				{
+					Name = "X",
+					Location = new Location(point.Point.Coordinates.Latitude, point.Point.Coordinates.Longitude)
+				};
+				result.Add(pointItem);
+			}
+
+			return result;
+		}
 
 		private List<ViewModel.Polyline> GetDifferencePolyline()
 		{
@@ -177,6 +331,21 @@ namespace MapDisplayApp
 			return result;
 		}
 
+		private ViewModel.Polyline GetFromSqlGeometry(Microsoft.SqlServer.Types.SqlGeometry multiPoint)
+		{
+			var result = new ViewModel.Polyline()
+			{
+				Locations = new LocationCollection()
+			};
+
+			for (int i = 1; i <= multiPoint.STNumPoints(); i++)
+			{
+				Microsoft.SqlServer.Types.SqlGeometry point = multiPoint.STPointN(i);
+				result.Locations.Add(new Location((double)point.STY, (double)point.STX));
+			}
+			return result;
+		}
+
 
 		private static void MapboxAPIUsage()
 		{
@@ -257,27 +426,27 @@ namespace MapDisplayApp
 			(this.DataContext as MapViewModel).Polylines.Add(polyline);
 		}
 
-		private static System.Windows.Shapes.Polyline GetPolyline()
-		{
-			string text = File.ReadAllText(@"C:\OSM\route.geojson");
-			GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
-			var polyline = new System.Windows.Shapes.Polyline();
-			foreach (Feature feature in parsed.features)
-			{
-				var startingCoordinates = feature.geometry.coordinates[0] as Newtonsoft.Json.Linq.JArray;
-				//
-				var startingPoint = new Point((float)startingCoordinates.Last(), (float)startingCoordinates.First());
+		//private static System.Windows.Shapes.Polyline GetPolyline()
+		//{
+		//	string text = File.ReadAllText(@"C:\OSM\route.geojson");
+		//	GeoJsonModel parsed = JsonConvert.DeserializeObject<GeoJsonModel>(text);
+		//	var polyline = new System.Windows.Shapes.Polyline();
+		//	foreach (Feature feature in parsed.features)
+		//	{
+		//		var startingCoordinates = feature.geometry.coordinates[0] as Newtonsoft.Json.Linq.JArray;
+		//		//
+		//		var startingPoint = new Point((float)startingCoordinates.Last(), (float)startingCoordinates.First());
 
-				var endingCoordinates = feature.geometry.coordinates[1] as Newtonsoft.Json.Linq.JArray;
-				//
-				var endingPoint = new Point((float)endingCoordinates.Last(), (float)endingCoordinates.First());
+		//		var endingCoordinates = feature.geometry.coordinates[1] as Newtonsoft.Json.Linq.JArray;
+		//		//
+		//		var endingPoint = new Point((float)endingCoordinates.Last(), (float)endingCoordinates.First());
 
-				polyline.Points.Add(startingPoint);
-				polyline.Points.Add(endingPoint);
-			}
+		//		polyline.Points.Add(startingPoint);
+		//		polyline.Points.Add(endingPoint);
+		//	}
 
-			return polyline;
-		}
+		//	return polyline;
+		//}
 
 		private static ViewModel.Polyline GetMapControlPolyLine()
 		{

@@ -30,9 +30,6 @@ namespace DbConnector.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Point>("Coordinate")
-                        .HasColumnType("geography");
-
                     b.Property<string>("District")
                         .HasColumnType("nvarchar(max)");
 
@@ -47,6 +44,9 @@ namespace DbConnector.Migrations
 
                     b.Property<long?>("ParentPointId")
                         .HasColumnType("bigint");
+
+                    b.Property<Point>("Point")
+                        .HasColumnType("geography");
 
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");

@@ -11,7 +11,7 @@ using NetTopologySuite.Geometries;
 namespace DbConnector.Migrations
 {
     [DbContext(typeof(GeoDbContext))]
-    [Migration("20200523153857_InitialMigration")]
+    [Migration("20200529115314_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,9 +32,6 @@ namespace DbConnector.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Point>("Coordinate")
-                        .HasColumnType("geography");
-
                     b.Property<string>("District")
                         .HasColumnType("nvarchar(max)");
 
@@ -49,6 +46,9 @@ namespace DbConnector.Migrations
 
                     b.Property<long?>("ParentPointId")
                         .HasColumnType("bigint");
+
+                    b.Property<Point>("Point")
+                        .HasColumnType("geography");
 
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");

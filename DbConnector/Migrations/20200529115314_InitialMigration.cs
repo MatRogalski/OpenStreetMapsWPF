@@ -13,7 +13,7 @@ namespace DbConnector.Migrations
                 {
                     PointId = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Coordinate = table.Column<Point>(nullable: true),
+                    Point = table.Column<Point>(nullable: true),
                     PostalCode = table.Column<string>(nullable: true),
                     Region = table.Column<string>(nullable: true),
                     District = table.Column<string>(nullable: true),

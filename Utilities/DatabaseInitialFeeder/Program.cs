@@ -17,9 +17,9 @@ namespace DatabaseInitialFeeder
 	{
 		static void Main(string[] args)
 		{
-			InsertAggregatedPointsToDb();
-			//InsertDataFromFileToDb(@$"C:\OSM\mazowieckie_100.csv");
 
+			//InsertDataFromFileToDb(@$"C:\OSM\mazowieckie_100.csv");
+			InsertAggregatedPointsToDb();
 		}
 
 		private static void InsertDataFromFileToDb(string fileName)
@@ -59,7 +59,7 @@ namespace DatabaseInitialFeeder
 
 		private static void InsertAggregatedPointsToDb()
 		{
-			var repo = new MockLocalizationPointRepositoryMazowieckie();
+			var repo = new LocalizationPointRepository();
 			var points = repo.GetWithoutAggregated();
 
 			for (int i = 0; i < points.Count(); i++)
@@ -72,6 +72,7 @@ namespace DatabaseInitialFeeder
 				isochroneSqlGeography = GetCorrectlyOrientedGeography(isochroneSqlGeography);
 
 				// take points that are not parent or child points in aggregation
+				// TODO: how to get modified points after updating parentID field
 				var pointsWithoutParentPoint = points.Where(i => i.ParentPointId == null && i.StaticScore == 0).ToList();
 				var pointsInsideIsochrone = pointsWithoutParentPoint.Where(i => (bool)isochroneSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();
 				if (pointsInsideIsochrone.Count() > 1)
@@ -91,9 +92,16 @@ namespace DatabaseInitialFeeder
 					{
 						// Create aggregated point
 						var aggregatedPoint = GetAggregatedPoint(pointIds, pointsWithoutParentPoint, resultRoute.Distance, resultRoute.Time);
-						points.Add(aggregatedPoint);
+						var addedPoint = repo.Add(aggregatedPoint);
+						// TODO: how to get addedPoint ID? for updating child point ParentID field
+						
 						// Update parentId for child points
-						var updatedPoints = GetUpdatedChildPointsWithParentId(pointIds, ref points, aggregatedPoint.PointId);
+						// TODO: is update correct?
+						var updatedPoints = GetUpdatedChildPointsWithParentId(pointIds, ref points, addedPoint.PointId);
+						foreach(var point in updatedPoints)
+						{
+							repo.Update(point);
+						}
 					}
 
 				}
@@ -148,7 +156,6 @@ namespace DatabaseInitialFeeder
 		{
 			var localizationPoint = new LocalizationPointDto()
 			{
-				PointId = 13,
 				Point = new GeoJSON.Net.Geometry.Point(GetPositionForAggregatedPoint(pointIds, points)),
 				StaticScore = pointIds.Count(),
 				InnerDistance = innerDistance,

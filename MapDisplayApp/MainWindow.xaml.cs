@@ -48,7 +48,12 @@ namespace MapDisplayApp
 
 			this.InitializeComponent();
 
-
+			var repo = new LocalizationPointRepository();
+			var pointItems = GetPointsItemsFromRepo(repo);
+			foreach (var pointItem in pointItems)
+			{
+				(this.DataContext as MapViewModel).Pushpins.Add(pointItem);
+			}
 
 			//InsertAggregatedPointsToDb();
 

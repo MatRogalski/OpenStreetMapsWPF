@@ -151,7 +151,7 @@ namespace ViewModel
 
             return result;
         }
-
+        
         private bool canStartRouteCalculation;
         public bool CanStartRouteCalculation
         {

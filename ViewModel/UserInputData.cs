@@ -58,6 +58,17 @@ namespace ViewModel
 				this.RaisePropertyChanged(nameof(this.additionalTimeMin));
 			}
 		}
+		
+		private string processingTime;
+		public string ProcessingTime
+		{
+			get => this.processingTime;
+			set
+			{
+				this.processingTime = value;
+				this.RaisePropertyChanged(nameof(this.ProcessingTime));
+			}
+		}
 
 
 	}

@@ -6,6 +6,7 @@ using Router;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace ViewModel
@@ -96,6 +97,9 @@ namespace ViewModel
         }
         private void CalculateRouteExecute()
         {
+            this.UserInputData.ProcessingTime = "During processing";
+            var watch = new Stopwatch();
+            watch.Start();
             this.Polylines.Clear();
             var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
             var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
@@ -123,6 +127,8 @@ namespace ViewModel
             {
                 this.Pushpins.Add(pointItem);
             }
+            watch.Stop();
+            this.UserInputData.ProcessingTime = $"{watch.Elapsed.Minutes} min {watch.Elapsed.Seconds} sec";
         }
         private bool CanCalculateRoute(object obj)
         {

@@ -7,7 +7,7 @@
 		xmlns:vm="clr-namespace:ViewModel"
 		xmlns:local="clr-namespace:MapDisplayApp"
 		mc:Ignorable="d"
-		Title="MainWindow" Height="550" Width="900">
+		Title="MainWindow" Height="550" Width="950">
 	<Window.Resources>
 		<local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
 
@@ -182,6 +182,10 @@
 				</StackPanel>
 				<StackPanel Margin="5" VerticalAlignment="Center">
 					<Button Command="{Binding CalculateRoute}" IsEnabled="{Binding CanStartRouteCalculation, UpdateSourceTrigger=PropertyChanged}" Name="GetRouteButton" Height="40">Wyznacz trasę</Button>
+				</StackPanel>
+				<StackPanel Margin="5">
+					<Label Name="ProcessingTimeLabel">Czas procesowania</Label>
+					<TextBox Name="ProcessingTimeTextBox" IsEnabled="False" Text="{Binding UserInputData.ProcessingTime}"></TextBox>
 				</StackPanel>
 			</StackPanel>
 		</Grid>

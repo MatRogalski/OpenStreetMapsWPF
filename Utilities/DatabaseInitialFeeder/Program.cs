@@ -79,7 +79,7 @@ namespace DatabaseInitialFeeder
 				{
 					Position[] positionsInsideIsochrone = pointsInsideIsochrone.Where(x => x.PointId != dbPoint.PointId).Select(x => (Position)x.Point.Coordinates).ToArray();
 
-					pointsWithoutParentPoint.ForEach(i => mappedPointsIds.Add(i.PointId.Value));
+					pointsInsideIsochrone.ForEach(i => mappedPointsIds.Add(i.PointId.Value));
 
 					TravelTimesMatrixModel travelTimesMatrixModel = OsrmAPIHelper.GetTravelTimesMatrix((Position)dbPoint.Point.Coordinates, positionsInsideIsochrone);
 					var durationsList = travelTimesMatrixModel.durations[0].ToList();

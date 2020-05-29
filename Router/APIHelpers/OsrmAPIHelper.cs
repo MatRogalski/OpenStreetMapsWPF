@@ -43,6 +43,19 @@ namespace Router.APIHelpers
             return parsed;
         }
 
+        public static OsrmJsonRouteModel GetOptimalRoute(params Position[] positions)
+        {
+            if (positions.Length > 1)
+            {
+                Position[] intermediates = new Position[positions.Length - 2];
+                Array.Copy(positions, 1, intermediates, 0, intermediates.Length);
+
+                return GetOptimalRoute(positions[0], positions[positions.Length - 1], intermediates);
+            }
+            else
+                return null;           
+        }
+
         public static OsrmJsonRouteModel GetOptimalRoute(string sourceQuery, string destinationQuery, params Position[] intermediates)
         {
             Position sourceCoordinate = NominatimAPIHelper.GetPositionForAddress(sourceQuery);

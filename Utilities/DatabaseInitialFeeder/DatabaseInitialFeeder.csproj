@@ -7,11 +7,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\DbConnector\DbConnector.csproj" />
+    <ProjectReference Include="..\..\Router\Router.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

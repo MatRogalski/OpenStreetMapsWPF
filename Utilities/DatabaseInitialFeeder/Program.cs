@@ -1,6 +1,7 @@
 ﻿using DbConnector.Repositories;
 using DbModel;
 using GeoJSON.Net.Geometry;
+using Router.APIHelpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,6 +49,19 @@ namespace DatabaseInitialFeeder
 					repo.Add(localizationPoint);
 				}
 			}
+			repo.SaveChanges();
+		}
+
+		private static void InsertAggregatedPointsToDb(string fileName)
+		{
+			var repo = new LocalizationPointRepository();
+			var points = repo.GetWithoutAggregated().OrderBy(i => i.Point.Coordinates.Longitude).ThenBy(i => i.Point.Coordinates.Latitude);
+
+			//MapboxAPIHelper.GetIsochroneAsPolygon
+
+
+
+
 			repo.SaveChanges();
 		}
 	}

@@ -8,7 +8,7 @@ namespace DbConnector.Repositories
 {
     public class MockLocalizationPointRepository : ILocalizationPointRepository
     {
-        private List<LocalizationPoint> points = new List<LocalizationPoint>();
+        private List<LocalizationPointDto> points = new List<LocalizationPointDto>();
 
         public MockLocalizationPointRepository()
         {
@@ -18,37 +18,37 @@ namespace DbConnector.Repositories
         //     wielun 51.220383, 18.564313
         //     lask 51.589554, 19.136186
         //     kamien 51.261527, 19.203991
-            LocalizationPoint pajeczno = new LocalizationPoint()
+            LocalizationPointDto pajeczno = new LocalizationPointDto()
             {
                 PointId = 1,
                 Point = new Point(new Position(51.144550, 18.999704)),
                 StaticScore = 0
             };
-            LocalizationPoint sulmierzyce = new LocalizationPoint()
+            LocalizationPointDto sulmierzyce = new LocalizationPointDto()
             {
                 PointId = 1,
                 Point = new Point(new Position(51.185689, 19.194213)),
                 StaticScore = 0
             };
-            LocalizationPoint marchewki = new LocalizationPoint()
+            LocalizationPointDto marchewki = new LocalizationPointDto()
             {
                 PointId = 1,
                 Point = new Point(new Position(51.186707, 18.937751)),
                 StaticScore = 0
             };
-            LocalizationPoint wielun = new LocalizationPoint()
+            LocalizationPointDto wielun = new LocalizationPointDto()
             {
                 PointId = 1,
                 Point = new Point(new Position(51.220383, 18.564313)),
                 StaticScore = 0
             };
-            LocalizationPoint lask = new LocalizationPoint()
+            LocalizationPointDto lask = new LocalizationPointDto()
             {
                 PointId = 1,
                 Point = new Point(new Position(51.589554, 19.136186)),
                 StaticScore = 0
             };
-            LocalizationPoint kamien = new LocalizationPoint()
+            LocalizationPointDto kamien = new LocalizationPointDto()
             {
                 PointId = 1,
                 Point = new Point(new Position(51.261527, 19.203991)),
@@ -63,17 +63,17 @@ namespace DbConnector.Repositories
             points.Add(kamien);
         }
 
-        public List<LocalizationPoint> GetByParentId(long parentLocalizationPointId)
+        public List<LocalizationPointDto> GetByParentId(long parentLocalizationPointDtoId)
         {
             throw new NotImplementedException();
         }
 
-        public List<LocalizationPoint> GetWithAggregated()
+        public List<LocalizationPointDto> GetWithAggregated()
         {
             throw new NotImplementedException();
         }
 
-        public List<LocalizationPoint> GetWithoutAggregated()
+        public List<LocalizationPointDto> GetWithoutAggregated()
         {
             return points;
         }

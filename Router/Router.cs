@@ -24,7 +24,7 @@ namespace Router
 			this.dynamicScoreNeedsToBeRecalculated = true;
 		}
 		
-		protected override void ProcessAvailablePoints(List<LocalizationPoint> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
+		protected override void ProcessAvailablePoints(List<LocalizationPointDto> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
 		{
 			// TODO: think about not processsing multiple times points that are aggregated 
 			while (this.doesRouteMeetParameters)
@@ -34,7 +34,7 @@ namespace Router
 				if (!availablePoints.Any())
 					break;
 
-				LocalizationPoint biggestScorePoint = availablePoints.Aggregate((i1, i2) => i1.DynamicScore > i2.DynamicScore ? i1 : i2);
+				LocalizationPointDto biggestScorePoint = availablePoints.Aggregate((i1, i2) => i1.DynamicScore > i2.DynamicScore ? i1 : i2);
 
 				availablePoints.Remove(biggestScorePoint);
 				// TODO: think about if biggestScorePoint = aggregated -> remove all child points
@@ -50,9 +50,9 @@ namespace Router
 			}
 		}
 
-		private void AddAggregatedPoint(LocalizationPoint biggestScorePoint, ref double currentAdditionalDistance, ref double currentAdditionalTime)
+		private void AddAggregatedPoint(LocalizationPointDto biggestScorePoint, ref double currentAdditionalDistance, ref double currentAdditionalTime)
 		{
-			List<LocalizationPoint> innerPoints = this.repo.GetByParentId(biggestScorePoint.PointId.Value);
+			List<LocalizationPointDto> innerPoints = this.repo.GetByParentId(biggestScorePoint.PointId.Value);
 			var tempWaypoints = this.waypoints.Select(i => i).ToList();
 			tempWaypoints.AddRange(innerPoints.Select(i => (Position)i.Point.Coordinates));
 
@@ -71,7 +71,7 @@ namespace Router
 		}
 
 
-		private void AddSimplePoint(LocalizationPoint biggestScorePoint, ref double currentAdditionalDistance, ref double currentAdditionalTime)
+		private void AddSimplePoint(LocalizationPointDto biggestScorePoint, ref double currentAdditionalDistance, ref double currentAdditionalTime)
 		{
 			this.waypoints.Add((Position)biggestScorePoint.Point.Coordinates);
 			RouteModel newRoute = this.GetRouteBetweenTwoPoints(this.waypoints);
@@ -95,9 +95,9 @@ namespace Router
 		}
 
 
-		private List<LocalizationPoint> GetPointsDynamicScoreUsingBuffer(List<LocalizationPoint> points, double additionalDistance, double additionalTime, bool countScore = true, int? stepSize = null)
+		private List<LocalizationPointDto> GetPointsDynamicScoreUsingBuffer(List<LocalizationPointDto> points, double additionalDistance, double additionalTime, bool countScore = true, int? stepSize = null)
 		{
-			var result = new List<LocalizationPoint>();
+			var result = new List<LocalizationPointDto>();
 			double halfOfAdditionalDistance = additionalDistance / 2;
 			Microsoft.SqlServer.Types.SqlGeography routeSqlGeography = this.resultRoute.MultiPointGeoJsonNet.ToSqlGeography();
 
@@ -140,7 +140,7 @@ namespace Router
 			return result;
 		}
 
-		private bool AllPointsHasSameParent(List<LocalizationPoint> points)
+		private bool AllPointsHasSameParent(List<LocalizationPointDto> points)
 		{
 			if (points.Any(i => i.ParentPointId == null))
 			{

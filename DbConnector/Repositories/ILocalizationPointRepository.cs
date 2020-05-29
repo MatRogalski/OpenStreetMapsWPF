@@ -7,10 +7,10 @@ namespace DbConnector.Repositories
 {
     public interface ILocalizationPointRepository
     {
-		public List<LocalizationPoint> GetByParentId(long parentLocalizationPointId);
+		public List<LocalizationPointDto> GetByParentId(long parentLocalizationPointId);
 
-		public List<LocalizationPoint> GetWithAggregated();
+		public List<LocalizationPointDto> GetWithAggregated();
 
-		public List<LocalizationPoint> GetWithoutAggregated();
+		public List<LocalizationPointDto> GetWithoutAggregated();
 	}
 }

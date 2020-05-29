@@ -31,7 +31,7 @@ namespace DatabaseInitialFeeder
 				{
 
 
-					var localizationPoint = new LocalizationPoint()
+					var localizationPoint = new LocalizationPointDto()
 					{
 						Point = new Point(new Position(latitude,longitude)),
 						Number = splitted[2],

@@ -79,10 +79,8 @@ namespace DatabaseInitialFeeder
 				{
 					Position[] positionsInsideIsochrone = pointsInsideIsochrone.Where(x => x.PointId != dbPoint.PointId).Select(x => (Position)x.Point.Coordinates).ToArray();
 
-					pointsInsideIsochrone.ForEach(i => mappedPointsIds.Add(i.PointId.Value));
-
 					TravelTimesMatrixModel travelTimesMatrixModel = OsrmAPIHelper.GetTravelTimesMatrix((Position)dbPoint.Point.Coordinates, positionsInsideIsochrone);
-					var durationsList = travelTimesMatrixModel.durations[0].ToList();
+					var durationsList = travelTimesMatrixModel.durations != null ? travelTimesMatrixModel.durations[0].ToList() : new List<float>();
 					var durationsListSortedWithIndexes = durationsList.Select((x, index) => new KeyValuePair<int, float>(index, x)).OrderBy(x => x.Value).ToList();
 
 					// get route that innerdistance and time is no longer than 30min and x? km
@@ -92,6 +90,8 @@ namespace DatabaseInitialFeeder
 
 					if (pointIds != null)
 					{
+						pointsInsideIsochrone.ForEach(i => mappedPointsIds.Add(i.PointId.Value));
+
 						// Create aggregated point
 						LocalizationPointDto aggregatedPoint = GetAggregatedPoint(pointIds, pointsWithoutParentPoint, resultRoute.Distance, resultRoute.Time);
 						LocalizationPointDto addedPoint = repo.Add(aggregatedPoint);

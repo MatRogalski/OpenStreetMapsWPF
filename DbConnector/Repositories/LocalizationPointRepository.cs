@@ -17,7 +17,10 @@ namespace DbConnector.Repositories
 		public LocalizationPointDto Add(LocalizationPointDto entity)
 		{
 			var entityToAdd = new LocalizationPoint(entity);
-			return new LocalizationPointDto(this.dataSet.Add(entityToAdd).Entity);
+			this.dataSet.Add(entityToAdd);
+			this.SaveChanges();
+
+			return new LocalizationPointDto(entityToAdd);
 		}
 		
 		public void Edit(LocalizationPointDto entity)

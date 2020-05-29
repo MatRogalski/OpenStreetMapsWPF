@@ -43,7 +43,7 @@ namespace DbConnector
 				.OnDelete(DeleteBehavior.NoAction);
 
 			modelBuilder.Entity<LocalizationPoint>()
-				.Ignore(i => "DynamicScore");
+				.Ignore(i => i.DynamicScore);
 
 		}
 	}

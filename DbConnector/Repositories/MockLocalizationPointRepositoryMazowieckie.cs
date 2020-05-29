@@ -31,56 +31,56 @@ namespace DbConnector.Repositories
             };
             LocalizationPoint ciolkowo = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 2,
                 Point = new Point(new Position(52.604040, 19.879803)),
                 StaticScore = 0
             };
             LocalizationPoint sierpc = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 3,
                 Point = new Point(new Position(52.855707, 19.668891)),
                 StaticScore = 0
             };
             LocalizationPoint torun = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 4,
                 Point = new Point(new Position(53.013152, 18.611620)),
                 StaticScore = 0
             };
             LocalizationPoint ciechanow = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 5,
                 Point = new Point(new Position(52.868006, 20.625774)),
                 StaticScore = 0
             };
             LocalizationPoint przasnysz = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 6,
                 Point = new Point(new Position(53.016507, 20.884518)),
                 StaticScore = 0
             };
 
             LocalizationPoint lomza = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 7,
                 Point = new Point(new Position(53.168437, 22.064546)),
                 StaticScore = 0
             };
             LocalizationPoint dzialdowo = new LocalizationPoint()
             {
-                PointId = 1,
-                Point = new Point(new Position(53.016507, 20.167872)),
+                PointId = 8,
+                Point = new Point(new Position(53.229588, 20.167984)),
                 StaticScore = 0
             };
             LocalizationPoint naruszewo = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 9,
                 Point = new Point(new Position(52.525421, 20.351985)),
                 StaticScore = 0
             };
             LocalizationPoint rzewin = new LocalizationPoint()
             {
-                PointId = 1,
+                PointId = 10,
                 Point = new Point(new Position(52.724651, 20.277417)),
                 StaticScore = 0
             };

@@ -35,12 +35,13 @@ namespace Router
 			foreach (var positionCombination in allPositionsCombinations)
 			{
 				RouteModel route = GetRouteBetweenTwoPoints(positionCombination);
-				allPossibleRoutes.Add(route);
+				if(DoesRouteMeetParameters(route, currentAdditionalDistance, currentAdditionalTime))
+					allPossibleRoutes.Add(route);
 			}
 
-			var routesThatMeetParameters = allPossibleRoutes.Where(i => i.Distance <= maxAllowedRouteDistance && i.Time <= maxAllowedRouteTime);
-			int maxNumberOfWaypoints = routesThatMeetParameters.Max(i => i.Waypoints.Length);
-			var routesWithMaxWaypoints = routesThatMeetParameters.Where(i => i.Waypoints.Length == maxNumberOfWaypoints);
+			//var routesThatMeetParameters = allPossibleRoutes.Where(i => i.Distance <= maxAllowedRouteDistance && i.Time <= maxAllowedRouteTime);
+			int maxNumberOfWaypoints = allPossibleRoutes.Max(i => i.Waypoints.Length);
+			var routesWithMaxWaypoints = allPossibleRoutes.Where(i => i.Waypoints.Length == maxNumberOfWaypoints);
 			var routesOrderedByDistanceAndTime = routesWithMaxWaypoints.OrderBy(i => i.Time).ThenBy(i => i.Distance);
 
 			this.resultRoute = routesOrderedByDistanceAndTime.Take(1).SingleOrDefault();

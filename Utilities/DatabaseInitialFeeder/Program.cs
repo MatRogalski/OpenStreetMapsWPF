@@ -60,45 +60,45 @@ namespace DatabaseInitialFeeder
 		private static void InsertAggregatedPointsToDb()
 		{
 			var repo = new LocalizationPointRepository();
-			var points = repo.GetWithoutAggregated();
+			List<LocalizationPointDto> points = repo.GetWithoutAggregated();
+			var mappedPointsIds = new HashSet<long>();
 
-			for (int i = 0; i < points.Count(); i++)
+			foreach (LocalizationPointDto dbPoint in points)
 			{
-				if (points.ElementAt(i).ParentPointId != null || points.ElementAt(i).StaticScore != 0)
+				if (dbPoint.ParentPointId != null || dbPoint.StaticScore != 0 || mappedPointsIds.Contains(dbPoint.PointId.Value))
 					continue;
 
-				var isochrone = MapboxAPIHelper.GetIsochroneAsPolygon((Position)points.ElementAt(i).Point.Coordinates, 15);
+				Polygon isochrone = MapboxAPIHelper.GetIsochroneAsPolygon((Position)dbPoint.Point.Coordinates, 15);
 				SqlGeography isochroneSqlGeography = isochrone.ToSqlGeography().MakeValid();
 				isochroneSqlGeography = GetCorrectlyOrientedGeography(isochroneSqlGeography);
 
 				// take points that are not parent or child points in aggregation
-				// TODO: how to get modified points after updating parentID field
-				var pointsWithoutParentPoint = points.Where(i => i.ParentPointId == null && i.StaticScore == 0).ToList();
+				var pointsWithoutParentPoint = points.Where(i => i.ParentPointId == null && i.StaticScore == 0 && !mappedPointsIds.Contains(i.PointId.Value)).ToList();
 				var pointsInsideIsochrone = pointsWithoutParentPoint.Where(i => (bool)isochroneSqlGeography.STContains(i.Point.ToSqlGeography())).ToList();
-				if (pointsInsideIsochrone.Count() > 1)
+				if (pointsInsideIsochrone.Any())
 				{
-					var positionsInsideIsochrone = pointsInsideIsochrone.Where(x => x.PointId != points.ElementAt(i).PointId).Select(x => (Position)x.Point.Coordinates).ToArray();
-					var travelTimesMatrixModel = OsrmAPIHelper.GetTravelTimesMatrix((Position)points.ElementAt(i).Point.Coordinates, positionsInsideIsochrone);
+					Position[] positionsInsideIsochrone = pointsInsideIsochrone.Where(x => x.PointId != dbPoint.PointId).Select(x => (Position)x.Point.Coordinates).ToArray();
+
+					pointsWithoutParentPoint.ForEach(i => mappedPointsIds.Add(i.PointId.Value));
+
+					TravelTimesMatrixModel travelTimesMatrixModel = OsrmAPIHelper.GetTravelTimesMatrix((Position)dbPoint.Point.Coordinates, positionsInsideIsochrone);
 					var durationsList = travelTimesMatrixModel.durations[0].ToList();
 					var durationsListSortedWithIndexes = durationsList.Select((x, index) => new KeyValuePair<int, float>(index, x)).OrderBy(x => x.Value).ToList();
 
 					// get route that innerdistance and time is no longer than 30min and x? km
-					RouteModel resultRoute;
 					double maxInnerDistance = 30 * 1000;
 					double maxInnerTime = 15 * 60;
-					var pointIds = GetRouteMeetingConditionsAndPointIds(durationsListSortedWithIndexes.Select(x => x.Key).ToList(), pointsInsideIsochrone, maxInnerDistance, maxInnerTime, out resultRoute);
+					List<long?> pointIds = GetRouteMeetingConditionsAndPointIds(durationsListSortedWithIndexes.Select(x => x.Key).ToList(), pointsInsideIsochrone, maxInnerDistance, maxInnerTime, out RouteModel resultRoute);
 
 					if (pointIds != null)
 					{
 						// Create aggregated point
-						var aggregatedPoint = GetAggregatedPoint(pointIds, pointsWithoutParentPoint, resultRoute.Distance, resultRoute.Time);
-						var addedPoint = repo.Add(aggregatedPoint);
-						// TODO: how to get addedPoint ID? for updating child point ParentID field
-						
+						LocalizationPointDto aggregatedPoint = GetAggregatedPoint(pointIds, pointsWithoutParentPoint, resultRoute.Distance, resultRoute.Time);
+						LocalizationPointDto addedPoint = repo.Add(aggregatedPoint);
+
 						// Update parentId for child points
-						// TODO: is update correct?
-						var updatedPoints = GetUpdatedChildPointsWithParentId(pointIds, ref points, addedPoint.PointId);
-						foreach(var point in updatedPoints)
+						List<LocalizationPointDto> updatedPoints = GetUpdatedChildPointsWithParentId(pointIds, points, addedPoint.PointId);
+						foreach(LocalizationPointDto point in updatedPoints)
 						{
 							repo.Update(point);
 						}
@@ -113,7 +113,7 @@ namespace DatabaseInitialFeeder
 		private static List<long?> GetRouteMeetingConditionsAndPointIds(List<int> indexesOfDurationList, List<DbModel.LocalizationPointDto> pointsInsideIsochrone, double maxInnerDistance, double maxInnerTime, out RouteModel route)
 		{
 			var sortedPointsByDuration = new List<DbModel.LocalizationPointDto>();
-			foreach (var index in indexesOfDurationList)
+			foreach (int index in indexesOfDurationList)
 			{
 				sortedPointsByDuration.Add(pointsInsideIsochrone.ElementAt(index));
 			}
@@ -122,7 +122,7 @@ namespace DatabaseInitialFeeder
 			route = null;
 			while (!doesRouteMeetParameters)
 			{
-				var routeJson = OsrmAPIHelper.GetOptimalRoute(sortedPointsByDuration.Select(x => (Position)x.Point.Coordinates).ToArray());
+				OsrmJsonRouteModel routeJson = OsrmAPIHelper.GetOptimalRoute(sortedPointsByDuration.Select(x => (Position)x.Point.Coordinates).ToArray());
 				if (routeJson == null)
 				{
 					route = null;
@@ -140,12 +140,12 @@ namespace DatabaseInitialFeeder
 			return pointIds;
 		}
 
-		private static  bool DoesInnerRouteMeetParameters(RouteModel route, double maxInnerDistance, double maxInnerTime)
+		private static bool DoesInnerRouteMeetParameters(RouteModel route, double maxInnerDistance, double maxInnerTime)
 		{
 			return route.Distance <= maxInnerDistance && route.Time <= maxInnerTime;
 		}
 
-		private static  List<LocalizationPointDto> GetUpdatedChildPointsWithParentId(List<long?> pointIds, ref List<DbModel.LocalizationPointDto> points, long? parentId)
+		private static List<LocalizationPointDto> GetUpdatedChildPointsWithParentId(List<long?> pointIds, List<DbModel.LocalizationPointDto> points, long? parentId)
 		{
 			points.Where(x => pointIds.Contains(x.PointId)).ToList().ForEach(x => x.ParentPointId = parentId);
 			var pointsWithIds = points.Where(x => pointIds.Contains(x.PointId)).ToList();
@@ -167,15 +167,15 @@ namespace DatabaseInitialFeeder
 		private static Position GetPositionForAggregatedPoint(List<long?> pointIds, List<DbModel.LocalizationPointDto> points)
 		{
 			var pointsWithIds = points.Where(x => pointIds.Contains(x.PointId)).ToList();
-			var longitude = pointsWithIds.Select(x => x.Point.Coordinates.Longitude).DefaultIfEmpty(0).Average();
-			var latitude = pointsWithIds.Select(x => x.Point.Coordinates.Latitude).DefaultIfEmpty(0).Average();
+			double longitude = pointsWithIds.Select(x => x.Point.Coordinates.Longitude).DefaultIfEmpty(0).Average();
+			double latitude = pointsWithIds.Select(x => x.Point.Coordinates.Latitude).DefaultIfEmpty(0).Average();
 
 			return new Position(latitude, longitude);
 		}
 
 		private static SqlGeography GetCorrectlyOrientedGeography(SqlGeography geography)
 		{
-			var invertedSqlGeography = geography.ReorientObject();
+			SqlGeography invertedSqlGeography = geography.ReorientObject();
 			if (geography.STArea() > invertedSqlGeography.STArea())
 			{
 				return invertedSqlGeography;

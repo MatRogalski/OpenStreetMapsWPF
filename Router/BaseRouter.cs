@@ -69,16 +69,16 @@ namespace Router
 
 		protected RouteModel GetRouteBetweenTwoPoints()
 		{
-			var routeJson = MapboxAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
-			//var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
+			//var routeJson = MapboxAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
+			var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
 			return routeJson.ToRouteModel();
 		}
 
 
 		protected RouteModel GetRouteBetweenTwoPoints(List<Position> waypoints)
 		{
-			var routeJson = MapboxAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
-			//var routeJson = OsrmAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
+			//var routeJson = MapboxAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
+			var routeJson = OsrmAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
 			return routeJson.ToRouteModel();
 		}
 

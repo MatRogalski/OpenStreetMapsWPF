@@ -15,11 +15,14 @@ namespace Router.APIHelpers
 {
     public static class OsrmAPIHelper
     {
+        private const string LOCAL_API_URL = "http://127.0.0.1:5000/";
+        private const string WEB_API_URL = "http://router.project-osrm.org/";
+
         public static OsrmJsonRouteModel GetSimpleRoute(params Position[] coordinates)
         {
             string positionsString = StringUtils.GetStringFromPositions(coordinates);
 
-            string uri = $"http://router.project-osrm.org/route/v1/driving/{positionsString}?geometries=geojson&overview=full";         
+            string uri = $"{LOCAL_API_URL}route/v1/driving/{positionsString}?geometries=geojson&overview=full";         
             string html = HttpProxy.DownloadResource(uri);
             OsrmJsonRouteModel parsed = JsonConvert.DeserializeObject<OsrmJsonRouteModel>(html);
             return parsed;
@@ -37,7 +40,7 @@ namespace Router.APIHelpers
         {
             Position[] positions = PositionArrayUtils.GetPositionsArray(first, last, intermediates);
             string positionsString = StringUtils.GetStringFromPositions(positions);
-            string uri = $"http://router.project-osrm.org/trip/v1/driving/{positionsString}?roundtrip=false&source=first&destination=last&geometries=geojson&overview=full";
+            string uri = $"{LOCAL_API_URL}trip/v1/driving/{positionsString}?roundtrip=false&source=first&destination=last&geometries=geojson&overview=full";
             string html = HttpProxy.DownloadResource(uri);
             OsrmJsonRouteModel parsed = JsonConvert.DeserializeObject<OsrmJsonRouteModel>(html);
             return parsed;
@@ -70,7 +73,7 @@ namespace Router.APIHelpers
             Array.Copy(desinations, 0, positions, 1, desinations.Length);
             string positionString = StringUtils.GetStringFromPositions(positions);
 
-            string uri = $"http://router.project-osrm.org/table/v1/driving/{positionString}?sources=0";
+            string uri = $"{LOCAL_API_URL}table/v1/driving/{positionString}?sources=0";
             string json = HttpProxy.DownloadResource(uri);
             TravelTimesMatrixModel parsed = JsonConvert.DeserializeObject<TravelTimesMatrixModel>(json);
             return parsed;

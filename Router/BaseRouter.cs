@@ -67,7 +67,6 @@ namespace Router
 
 		protected RouteModel GetRouteBetweenTwoPoints()
 		{
-			// TODO: GetSimpleRoute or GetOptimalRoute? - probably Simple
 			var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
 			return routeJson.ToRouteModel();
 		}
@@ -75,7 +74,6 @@ namespace Router
 
 		protected RouteModel GetRouteBetweenTwoPoints(List<Position> waypoints)
 		{
-			// TODO: GetSimpleRoute or GetOptimalRoute? - probalby Optimal
 			var routeJson = OsrmAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
 			return routeJson.ToRouteModel();
 		}

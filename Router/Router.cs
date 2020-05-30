@@ -26,7 +26,6 @@ namespace Router
 
 		protected override void ProcessAvailablePoints(List<LocalizationPointDto> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
 		{
-			// TODO: think about not processsing multiple times points that are aggregated 
 			while (this.doesRouteMeetParameters)
 			{
 				availablePoints = this.GetPointsDynamicScoreUsingBuffer(availablePoints, currentAdditionalDistance, currentAdditionalTime, countScore: this.dynamicScoreNeedsToBeRecalculated, stepSize);
@@ -37,7 +36,6 @@ namespace Router
 				LocalizationPointDto biggestScorePoint = availablePoints.Aggregate((i1, i2) => i1.DynamicScore > i2.DynamicScore ? i1 : i2);
 
 				availablePoints.Remove(biggestScorePoint);
-				// TODO: think about if biggestScorePoint = aggregated -> remove all child points
 
 				if (biggestScorePoint.StaticScore == 0)
 				{
@@ -49,6 +47,7 @@ namespace Router
 					// TODO: jesli punkt zaagregowany jest rozbity na pomniejsze punkty to pozwala na dalsze przetwarzanie zwyklych punktow
 					// ale za to jest szansa ze wejdziemy w petle nieskoczona - gdyby zostaly tylko punkty zaagregowane
 					// dlatego moze to usunac
+					// availablePoints.Any() chyba chroni przed petla nieskonczona
 					this.doesRouteMeetParameters = true;
 				}
 			}
@@ -115,11 +114,7 @@ namespace Router
 
 			int step = stepSize ?? (int)halfOfAdditionalDistance / 10;
 			bool isFirstRun = true;
-
-			//TODO: include additional time to counting dynamic score/buffer
-
-			//TODO: think about counting score for inner points algorithm and its computational complexity 
-
+			
 			while (bufferSize > 0)
 			{
 				if (isFirstRun)

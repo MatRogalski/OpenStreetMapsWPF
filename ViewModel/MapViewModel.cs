@@ -98,6 +98,7 @@ namespace ViewModel
         }
         private void CalculateRouteExecute()
         {
+            // TODO: this one line below does not seem to work
             this.UserInputData.ProcessingTime = "During processing";
             var watch = new Stopwatch();
             watch.Start();

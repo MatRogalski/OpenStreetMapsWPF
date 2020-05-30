@@ -114,7 +114,9 @@
 		<map:OrthographicProjection x:Key="OrthographicProjection"/>
 		<map:GnomonicProjection x:Key="GnomonicProjection"/>
 		<map:StereographicProjection x:Key="StereographicProjection"/>
-	</Window.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
 
 	<Window.DataContext>
 		<vm:MapViewModel/>
@@ -156,7 +158,8 @@
 								 SelectionMode="Extended"/>
 
 			<map:MapItemsControl ItemsSource="{Binding Pushpins}"
-								 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
+								 ItemContainerStyle="{StaticResource PushpinItemStyle}"                                 
+                                 Visibility="{Binding UserInputData.PointsVisible, Converter={StaticResource BoolToVis}}"/>
 
             <map:MapItemsControl ItemsSource="{Binding PushpinsRoute}"
 								 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
@@ -227,8 +230,12 @@
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 			<TextBlock x:Name="mouseLocation" Margin="5" VerticalAlignment="Bottom" FontFamily="Segoe UI Mono"/>
-			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-				<StackPanel Margin="5">
+			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                <StackPanel Margin="5">
+                    <Label Name="PointsVisibleLabel">Czy wyświetlać punkty pośrednie?</Label>
+                    <CheckBox Name="PointsVisibleCheckBox" IsChecked="{Binding UserInputData.PointsVisible}" HorizontalAlignment="Center"></CheckBox>
+                </StackPanel>
+                <StackPanel Margin="5">
 					<TextBlock Text="Zoom Level" Margin="0,0,0,2" HorizontalAlignment="Center" Foreground="Gray" FontSize="10"/>
 					<Slider ToolTip="Zoom Level" Width="100" VerticalAlignment="Center" SmallChange="0.01"
 							Minimum="{Binding MinZoomLevel, ElementName=map}"

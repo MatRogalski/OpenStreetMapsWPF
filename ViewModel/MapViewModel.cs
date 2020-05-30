@@ -87,7 +87,6 @@ namespace ViewModel
         public ObservableCollection<PointItem> Points { get; } = new ObservableCollection<PointItem>();
         public ObservableCollection<PointItem> Pushpins { get; } = new ObservableCollection<PointItem>();
         public ObservableCollection<Polyline> Polylines { get; } = new ObservableCollection<Polyline>();
-
         public ObservableCollection<PointItem> PushpinsRoute { get; } = new ObservableCollection<PointItem>();
 
         public MapLayers MapLayers { get; } = new MapLayers();

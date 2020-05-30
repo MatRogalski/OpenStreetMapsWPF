@@ -9,6 +9,11 @@ namespace ViewModel
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
+		public UserInputData()
+		{
+			pointsVisible = true;
+		}
+
 		protected void RaisePropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -133,6 +138,17 @@ namespace ViewModel
 			{
 				this.resultAdditionalStops = value;
 				this.RaisePropertyChanged(nameof(this.ResultAdditionalStops));
+			}
+		}
+
+		private bool pointsVisible;
+		public bool PointsVisible
+		{
+			get => this.pointsVisible;
+			set
+			{
+				this.pointsVisible = value;
+				this.RaisePropertyChanged(nameof(this.PointsVisible));
 			}
 		}
 

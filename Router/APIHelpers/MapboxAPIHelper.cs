@@ -17,6 +17,16 @@ namespace Router.APIHelpers
     {
         private const string API_KEY = "pk.eyJ1IjoibWlsdGVuNiIsImEiOiJja2FsOW53YmIwOXRlMnhteWNyczdyMzF0In0.8w1TkiipRjW35bNlfH7kYQ";
 
+        public static OsrmJsonRouteModel GetSimpleRoute(params Position[] coordinates)
+        {
+            string positionsString = StringUtils.GetStringFromPositions(coordinates);
+
+            string uri = $"https://api.mapbox.com/directions/v5/mapbox/driving/{positionsString}?access_token={API_KEY}&geometries=geojson&overview=full";
+            string html = HttpProxy.DownloadResource(uri);
+            OsrmJsonRouteModel parsed = JsonConvert.DeserializeObject<OsrmJsonRouteModel>(html);
+            return parsed;
+        }
+
         public static OsrmJsonRouteModel GetOptimalRoute(Position first, Position last, params Position[] intermediates)
         {
             Position[] positions = PositionArrayUtils.GetPositionsArray(first, last, intermediates);

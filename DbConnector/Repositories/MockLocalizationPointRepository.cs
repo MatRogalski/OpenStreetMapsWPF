@@ -63,6 +63,11 @@ namespace DbConnector.Repositories
             points.Add(kamien);
         }
 
+        public List<LocalizationPointDto> GetAllPoints()
+        {
+            throw new NotImplementedException();
+        }
+
         public List<LocalizationPointDto> GetByParentId(long parentLocalizationPointDtoId)
         {
             throw new NotImplementedException();

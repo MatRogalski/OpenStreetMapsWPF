@@ -7,7 +7,7 @@
 		xmlns:vm="clr-namespace:ViewModel"
 		xmlns:local="clr-namespace:MapDisplayApp"
 		mc:Ignorable="d"
-		Title="MainWindow" Height="650" Width="1150">
+		Title="MainWindow" Height="650" Width="1200">
 	<Window.Resources>
 		<local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
 
@@ -96,7 +96,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="map:MapItem">
-						<map:Pushpin Content="{Binding Name}" Foreground="{TemplateBinding Foreground}"/>
+						<map:Pushpin Content="{Binding Name}" Foreground="{TemplateBinding Foreground}" Background="{Binding BackgroundColor}" FontSize="9"/>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
@@ -158,7 +158,10 @@
 			<map:MapItemsControl ItemsSource="{Binding Pushpins}"
 								 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
 
-		</map:Map>
+            <map:MapItemsControl ItemsSource="{Binding PushpinsRoute}"
+								 ItemContainerStyle="{StaticResource PushpinItemStyle}"/>
+
+        </map:Map>
 
 		<Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#7FFFFFFF">
 			<TextBlock Margin="2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>

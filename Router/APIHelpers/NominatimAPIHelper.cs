@@ -11,7 +11,7 @@ namespace Router.APIHelpers
     {
         public static GeocodeResponse GetAdressDetails(string query)
         {
-            ForwardGeocoder geocoder = new Nominatim.API.Geocoders.ForwardGeocoder();
+            ForwardGeocoder geocoder = new ForwardGeocoder();
             ForwardGeocodeRequest request = new ForwardGeocodeRequest()
             {
                 queryString = query,
@@ -25,7 +25,12 @@ namespace Router.APIHelpers
 
         public static Position GetPositionForAddress(string addressquery)
         {
-            var addressDetails = NominatimAPIHelper.GetAdressDetails(addressquery);
+            var addressDetails = GetAdressDetails(addressquery);
+
+            // API requires exactly 7 numbers after comma
+            //double latitude = Math.Round(addressDetails.Latitude, 7);
+            //double longitude = Math.Round(addressDetails.Longitude, 7);
+
             return new Position(addressDetails.Latitude, addressDetails.Longitude);
         }
     }

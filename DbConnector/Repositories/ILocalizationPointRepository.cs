@@ -12,5 +12,7 @@ namespace DbConnector.Repositories
 		public List<LocalizationPointDto> GetWithAggregated();
 
 		public List<LocalizationPointDto> GetWithoutAggregated();
+
+		public List<LocalizationPointDto> GetAllPoints();
 	}
 }

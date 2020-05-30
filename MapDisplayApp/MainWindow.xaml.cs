@@ -49,6 +49,7 @@ namespace MapDisplayApp
 			this.InitializeComponent();
 
 			var repo = new LocalizationPointRepository();
+
 			var pointItems = GetPointsItemsFromRepo(repo);
 			foreach (var pointItem in pointItems)
 			{
@@ -201,16 +202,29 @@ namespace MapDisplayApp
 
 
 
-		private List<PointItem> GetPointsItemsFromRepo(ILocalizationPointRepository repo)
+		private List<PointItem> GetPointsItemsFromRepo(ILocalizationPointRepository repository)
 		{
+			var repoPoints = repository.GetAllPoints();
 			var result = new List<PointItem>();
-			var points = repo.GetWithoutAggregated();
-
-			foreach(var point in points)
+			foreach (var point in repoPoints)
 			{
+				string pointID;
+				if (point.StaticScore == 0)
+				{
+					pointID = point.PointId.ToString();
+				}
+				else
+				{
+					List<long?> childIds = repository.GetByParentId((long)point.PointId).Select(x => x.PointId).ToList();
+					string childIdsString = "";
+					childIds.ForEach(x => childIdsString += $"{x.ToString()}, ");
+					childIdsString = childIdsString.Substring(0, childIdsString.Length - 2);
+					pointID = $"{point.PointId.ToString()}: {childIdsString}";
+				}
 				PointItem pointItem = new PointItem()
 				{
-					Name = "X",
+					BackgroundColor = point.StaticScore == 0 ? "LightBlue" : "LightCoral",
+					Name = pointID,
 					Location = new Location(point.Point.Coordinates.Latitude, point.Point.Coordinates.Longitude)
 				};
 				result.Add(pointItem);

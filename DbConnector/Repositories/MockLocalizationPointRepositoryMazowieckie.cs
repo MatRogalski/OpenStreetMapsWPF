@@ -111,6 +111,11 @@ namespace DbConnector.Repositories
             points.Add(plock3);
         }
 
+        public List<LocalizationPointDto> GetAllPoints()
+        {
+            throw new NotImplementedException();
+        }
+
         public List<LocalizationPointDto> GetByParentId(long parentLocalizationPointId)
         {
             throw new NotImplementedException();

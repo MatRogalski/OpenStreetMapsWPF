@@ -25,6 +25,7 @@ namespace Router
 		protected bool doesRouteMeetParameters;
 
 		public RouteModel ReferenceRoute { get { return referenceRoute; } }
+		public List<LocalizationPointDto> PointsFromRepo { get; private set; }
 
 		protected BaseRouter()
 		{
@@ -48,7 +49,8 @@ namespace Router
 			this.maxAllowedRouteTime = this.referenceRoute.Time + this.totalAdditionalTime;
 
 			this.resultRoute = this.referenceRoute;
-			var availablePoints = (useAggregatedPoints ? this.repo.GetWithAggregated() : this.repo.GetWithoutAggregated()).ToList();
+			this.PointsFromRepo = (useAggregatedPoints ? this.repo.GetWithAggregated() : this.repo.GetWithoutAggregated()).ToList();
+			var availablePoints = this.PointsFromRepo;
 			this.ProcessAvailablePoints(availablePoints, this.totalAdditionalDistance, this.totalAdditionalTime);
 			return this.resultRoute;
 		}
@@ -67,14 +69,16 @@ namespace Router
 
 		protected RouteModel GetRouteBetweenTwoPoints()
 		{
-			var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
+			var routeJson = MapboxAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
+			//var routeJson = OsrmAPIHelper.GetSimpleRoute(startingPosition, endingPositions);
 			return routeJson.ToRouteModel();
 		}
 
 
 		protected RouteModel GetRouteBetweenTwoPoints(List<Position> waypoints)
 		{
-			var routeJson = OsrmAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
+			var routeJson = MapboxAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
+			//var routeJson = OsrmAPIHelper.GetOptimalRoute(this.startingPosition, this.endingPositions, waypoints.ToArray());
 			return routeJson.ToRouteModel();
 		}
 

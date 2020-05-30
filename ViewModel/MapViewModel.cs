@@ -1,4 +1,5 @@
-﻿using Itinero;
+﻿using DbModel;
+using Itinero;
 using MapControl;
 using NetTopologySuite.IO;
 using OsmSharp.API;
@@ -45,6 +46,8 @@ namespace ViewModel
                 this.RaisePropertyChanged(nameof(this.Location));
             }
         }
+
+        public string BackgroundColor { get; set; }
     }
 
     public class Polyline
@@ -85,6 +88,8 @@ namespace ViewModel
         public ObservableCollection<PointItem> Pushpins { get; } = new ObservableCollection<PointItem>();
         public ObservableCollection<Polyline> Polylines { get; } = new ObservableCollection<Polyline>();
 
+        public ObservableCollection<PointItem> PushpinsRoute { get; } = new ObservableCollection<PointItem>();
+
         public MapLayers MapLayers { get; } = new MapLayers();
 
         public UserInputData UserInputData { get; }
@@ -124,9 +129,10 @@ namespace ViewModel
             this.UserInputData.ReferenceTimeHMin = GetHoursMinutesFromSeconds(referenceRoute.Time);
 
             List<PointItem> pointItemsRoute = this.GetFromRouteModel(route);
-            foreach(var pointItem in pointItemsRoute)
-            {
-                this.Pushpins.Add(pointItem);
+            this.PushpinsRoute.Clear();
+            foreach (var pointItem in pointItemsRoute)
+            {                
+                this.PushpinsRoute.Add(pointItem);
             }
             watch.Stop();
             this.UserInputData.ProcessingTime = $"{watch.Elapsed.Minutes} min {watch.Elapsed.Seconds} sec";
@@ -151,6 +157,7 @@ namespace ViewModel
             return answer;
         }
 
+
         private Polyline GetFromMultiPoint(NetTopologySuite.Geometries.MultiPoint multiPoint, string polylineColor, int polylineStrokeThickness)
         {
             var result = new Polyline()
@@ -172,14 +179,30 @@ namespace ViewModel
         {
             var result = new List<PointItem>();
 
-            for(int i = 0; i < routeModel.Waypoints.Length; i++) 
+            PointItem startItem = new PointItem()
+            {
+                Name = $"1. {this.UserInputData.StartingPoint}",
+                Location = new Location(routeModel.Waypoints[0].location[1], routeModel.Waypoints[0].location[0]),
+                BackgroundColor = "LightGreen"
+            };
+            PointItem endItem = new PointItem()
+            {
+                Name = $"{routeModel.Waypoints.Length}. {this.UserInputData.EndingPoint}",
+                Location = new Location(routeModel.Waypoints[routeModel.Waypoints.Length - 1].location[1], routeModel.Waypoints[routeModel.Waypoints.Length - 1].location[0]),
+                BackgroundColor = "LightGreen"
+            };
+            result.Add(startItem);
+            result.Add(endItem);
+
+            for (int i = 1; i < routeModel.Waypoints.Length - 1; i++) 
             {
                 int waypointIndex = routeModel.Waypoints[i].waypoint_index;
 
                 PointItem pointItem = new PointItem()
                 {
-                    Name = $"{++waypointIndex}. Nazwa: {routeModel.Waypoints[i].name}",
-                    Location = new Location(routeModel.Waypoints[i].location[1], routeModel.Waypoints[i].location[0])
+                    Name = $"{++waypointIndex}.",
+                    Location = new Location(routeModel.Waypoints[i].location[1], routeModel.Waypoints[i].location[0]),
+                    BackgroundColor = "LightGreen"
                 };
                 result.Add(pointItem);
             }

@@ -73,5 +73,10 @@ namespace DbConnector.Repositories
 			//this takes all normal points have static score == 0
 			return this.dataSet.Where(i => i.StaticScore == 0).Select(i=> new LocalizationPointDto(i)).ToList();
 		}
+
+		public List<LocalizationPointDto> GetAllPoints()
+		{
+			return this.dataSet.Select(i => new LocalizationPointDto(i)).ToList();
+		}
 	}
 }

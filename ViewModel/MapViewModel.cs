@@ -3,6 +3,7 @@ using MapControl;
 using NetTopologySuite.IO;
 using OsmSharp.API;
 using Router;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -103,24 +104,23 @@ namespace ViewModel
             this.Polylines.Clear();
             var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
             var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
-            GeoJSON.Net.Geometry.Position startingPoint = new GeoJSON.Net.Geometry.Position(startingPosition.Latitude, startingPosition.Longitude);
-            GeoJSON.Net.Geometry.Position endingPoint = new GeoJSON.Net.Geometry.Position(endingPosition.Latitude, endingPosition.Longitude);
             
             double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin) * 60;
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
 
-            var router = new Router.Router(startingPoint, endingPoint, additionalDistance, additionalTime);
-            Router.Model.RouteModel route = router.GetRoute(true);
-            Polyline polyline = this.GetFromMultiPoint(route.MultiPoint);
-            polyline.Color = "Blue";
-            polyline.StrokeThickness = 6;
+            var router = new Router.Router(startingPosition, endingPosition, additionalDistance, additionalTime);
+            Router.Model.RouteModel route = router.GetRoute(this.UserInputData.UseAggregatedPoints);
+            Polyline polyline = this.GetFromMultiPoint(route.MultiPoint, "Blue", 6);
             this.Polylines.Add(polyline);
+            this.UserInputData.ResultDistanceKm = (route.Distance / 1000).ToString();
+            this.UserInputData.ResultTimeHMin = GetHoursMinutesFromSeconds(route.Time);
+            this.UserInputData.ResultAdditionalStops = (route.Waypoints.Length - 2).ToString();
 
             Router.Model.RouteModel referenceRoute = router.ReferenceRoute;
-            Polyline polylineReference = this.GetFromMultiPoint(referenceRoute.MultiPoint);
-            polylineReference.Color = "Red"; 
-            polylineReference.StrokeThickness = 3; 
+            Polyline polylineReference = this.GetFromMultiPoint(referenceRoute.MultiPoint, "Red", 3);
             this.Polylines.Add(polylineReference);
+            this.UserInputData.ReferenceDistanceKm = (referenceRoute.Distance / 1000).ToString();
+            this.UserInputData.ReferenceTimeHMin = GetHoursMinutesFromSeconds(referenceRoute.Time);
 
             List<PointItem> pointItemsRoute = this.GetFromRouteModel(route);
             foreach(var pointItem in pointItemsRoute)
@@ -140,7 +140,17 @@ namespace ViewModel
                 && !string.IsNullOrWhiteSpace(this.UserInputData.EndingPoint);
         }
 
-        private Polyline GetFromMultiPoint(NetTopologySuite.Geometries.MultiPoint multiPoint)
+        private string GetHoursMinutesFromSeconds(double seconds)
+        {
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+
+            string answer = string.Format("{0:D2}h {1:D2}min",
+                            t.Hours,
+                            t.Minutes);
+            return answer;
+        }
+
+        private Polyline GetFromMultiPoint(NetTopologySuite.Geometries.MultiPoint multiPoint, string polylineColor, int polylineStrokeThickness)
         {
             var result = new Polyline()
             {
@@ -151,6 +161,9 @@ namespace ViewModel
             {
                 result.Locations.Add(new Location(point.Y, point.X));
             }
+
+            result.Color = polylineColor;
+            result.StrokeThickness = polylineStrokeThickness;
             return result;
         }
 

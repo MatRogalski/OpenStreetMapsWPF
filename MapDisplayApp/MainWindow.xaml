@@ -7,7 +7,7 @@
 		xmlns:vm="clr-namespace:ViewModel"
 		xmlns:local="clr-namespace:MapDisplayApp"
 		mc:Ignorable="d"
-		Title="MainWindow" Height="550" Width="950">
+		Title="MainWindow" Height="650" Width="1150">
 	<Window.Resources>
 		<local:LocationToVisibilityConverter x:Key="LocationToVisibilityConverter"/>
 
@@ -125,6 +125,7 @@
 			<RowDefinition />
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
 		<map:Map x:Name="map" ZoomLevel="11" MaxZoomLevel="21"
@@ -163,8 +164,8 @@
 			<TextBlock Margin="2" FontSize="10" map:HyperlinkText.InlinesSource="{Binding MapLayer.Description, ElementName=map}"/>
 		</Border>
 		<Grid Grid.Row="1">
-			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-				<StackPanel MinWidth="200" Margin="5">
+			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                <StackPanel MinWidth="200" Margin="20, 5, 5, 5">
 					<Label Name="StartingPointLabel">Punkt startowy</Label>
 					<TextBox Name="StartingPointTextBox" Text="{Binding UserInputData.StartingPoint}"></TextBox>
 				</StackPanel>
@@ -180,7 +181,11 @@
 					<Label Name="AdditionalTimeLabel">Dodatkowy czas (min)</Label>
 					<TextBox Name="AdditionalTimeTextBox" Text="{Binding UserInputData.AdditionalTimeMin}"></TextBox>
 				</StackPanel>
-				<StackPanel Margin="5" VerticalAlignment="Center">
+                <StackPanel Margin="5">
+                    <Label Name="UseAggregatedPointsLabel">Czy użyć punktów zaagregowanych?</Label>
+                    <CheckBox Name="UseAggregatedPointsCheckBox" IsChecked="{Binding UserInputData.UseAggregatedPoints}" HorizontalAlignment="Center"></CheckBox>
+                </StackPanel>
+                <StackPanel Margin="5" VerticalAlignment="Center">
 					<Button Command="{Binding CalculateRoute}" IsEnabled="{Binding CanStartRouteCalculation, UpdateSourceTrigger=PropertyChanged}" Name="GetRouteButton" Height="40">Wyznacz trasę</Button>
 				</StackPanel>
 				<StackPanel Margin="5">
@@ -189,7 +194,31 @@
 				</StackPanel>
 			</StackPanel>
 		</Grid>
-		<Grid Grid.Row="2">
+        <Grid Grid.Row="2">
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                <StackPanel Margin="20, 5, 5, 5">
+                    <Label Name="ReferenceDistanceLabel">Dystans drogi referencyjnej (km)</Label>
+                    <TextBox Name="ReferenceDistanceTextBox" IsEnabled="False" Text="{Binding UserInputData.ReferenceDistanceKm}"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <Label Name="ReferenceTimeLabel">Czas drogi referencyjnej</Label>
+                    <TextBox Name="ReferenceTimeTextBox" IsEnabled="False" Text="{Binding UserInputData.ReferenceTimeHMin}"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="50, 5, 5, 5" >
+                    <Label Name="ResultDistanceLabel">Dystans drogi znalezionej (km)</Label>
+                    <TextBox Name="ResultDistanceTextBox" IsEnabled="False" Text="{Binding UserInputData.ResultDistanceKm}"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <Label Name="ResultTimeLabel">Czas drogi znalezionej</Label>
+                    <TextBox Name="ResultTimeTextBox" IsEnabled="False" Text="{Binding UserInputData.ResultTimeHMin}"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <Label Name="ResultAdditionalStopsLabel">Liczba dodatkowych przystanków</Label>
+                    <TextBox Name="ResultAdditionalStopsTextBox" IsEnabled="False" Text="{Binding UserInputData.ResultAdditionalStops}"></TextBox>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="3">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition/>
 				<ColumnDefinition Width="Auto"/>

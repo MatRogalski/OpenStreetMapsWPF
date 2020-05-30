@@ -58,7 +58,18 @@ namespace ViewModel
 				this.RaisePropertyChanged(nameof(this.additionalTimeMin));
 			}
 		}
-		
+
+		private bool useAggregatedPoints;
+		public bool UseAggregatedPoints
+		{
+			get => this.useAggregatedPoints;
+			set
+			{
+				this.useAggregatedPoints = value;
+				this.RaisePropertyChanged(nameof(this.UseAggregatedPoints));
+			}
+		}
+
 		private string processingTime;
 		public string ProcessingTime
 		{
@@ -70,6 +81,60 @@ namespace ViewModel
 			}
 		}
 
+		private string referenceDistanceKm;
+		public string ReferenceDistanceKm
+		{
+			get => this.referenceDistanceKm;
+			set
+			{
+				this.referenceDistanceKm = value;
+				this.RaisePropertyChanged(nameof(this.ReferenceDistanceKm));
+			}
+		}
+
+		private string referenceTimeHMin;
+		public string ReferenceTimeHMin
+		{
+			get => this.referenceTimeHMin;
+			set
+			{
+				this.referenceTimeHMin = value;
+				this.RaisePropertyChanged(nameof(this.ReferenceTimeHMin));
+			}
+		}
+
+		private string resultDistanceKm;
+		public string ResultDistanceKm
+		{
+			get => this.resultDistanceKm;
+			set
+			{
+				this.resultDistanceKm = value;
+				this.RaisePropertyChanged(nameof(this.ResultDistanceKm));
+			}
+		}
+
+		private string resultTimeHMin;
+		public string ResultTimeHMin
+		{
+			get => this.resultTimeHMin;
+			set
+			{
+				this.resultTimeHMin = value;
+				this.RaisePropertyChanged(nameof(this.ResultTimeHMin));
+			}
+		}
+
+		private string resultAdditionalStops;
+		public string ResultAdditionalStops
+		{
+			get => this.resultAdditionalStops;
+			set
+			{
+				this.resultAdditionalStops = value;
+				this.RaisePropertyChanged(nameof(this.ResultAdditionalStops));
+			}
+		}
 
 	}
 }

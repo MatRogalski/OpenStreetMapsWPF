@@ -9,10 +9,10 @@ namespace RandomRecordsPicker
 	{
 		static void Main(string[] args)
 		{
-			int numberOfResults = 1000;
-			//GetNRecordsFromFile(numberOfResults, @"C:\GIT\private\map\openaddr-collected-europe\pl\mazowieckie.csv", @$"C:\GIT\private\map\mazowieckie_{numberOfResults}.csv");
+			int numberOfResults = 15;
+			GetNRecordsFromFile(numberOfResults, @"C:\OSM\mazowieckie_100.csv", @$"C:\OSM\mazowieckie_{numberOfResults}.csv");
 
-			GetNRecordsFromDirectory(numberOfResults, @"C:\GIT\private\map\openaddr-collected-europe\pl\", @$"C:\GIT\private\map\polska_{numberOfResults}.csv");
+			//GetNRecordsFromDirectory(numberOfResults, @"C:\GIT\private\map\openaddr-collected-europe\pl\", @$"C:\GIT\private\map\polska_{numberOfResults}.csv");
 		}
 
 		private static void GetNRecordsFromFile(int numberOfResults, string sourcePath, string destinationPath)

@@ -18,8 +18,8 @@ namespace DatabaseInitialFeeder
 		static void Main(string[] args)
 		{
 
-			InsertDataFromFileToDb(@$"C:\GIT\private\map\polska_1000.csv");
-			InsertAggregatedPointsToDb();
+			InsertDataFromFileToDb(@$"C:\OSM\mazowieckie_15.csv");
+			//InsertAggregatedPointsToDb();
 		}
 
 		private static void InsertDataFromFileToDb(string fileName)

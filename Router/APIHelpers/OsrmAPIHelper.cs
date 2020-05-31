@@ -18,7 +18,7 @@ namespace Router.APIHelpers
         private const string LOCAL_API_URL = "http://127.0.0.1:5000/";
         private const string WEB_API_URL = "http://router.project-osrm.org/";
 
-        private static string usedApiUrl = WEB_API_URL;
+        private static string usedApiUrl = LOCAL_API_URL;
 
         public static OsrmJsonRouteModel GetSimpleRoute(params Position[] coordinates)
         {

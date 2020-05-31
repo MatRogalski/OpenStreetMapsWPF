@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Router
 {
@@ -14,12 +16,47 @@ namespace Router
 		{
 		}
 
-		protected override void ProcessAvailablePoints(List<LocalizationPointDto> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
-        {
-			var allPointsCombinations = GetPowerSet(availablePoints);
+		//protected override void ProcessAvailablePoints(List<LocalizationPointDto> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
+  //      {
+		//	var pointsWithoutAggregated = availablePoints.Where(x => x.StaticScore == 0).ToList();
+		//	var allPointsCombinations = GetPowerSet(pointsWithoutAggregated);
 
-			List<List<Position>> allPositionsCombinations = new List<List<Position>>();
-			foreach (var pointCombination in allPointsCombinations)
+		//	List<List<Position>> allPositionsCombinations = new List<List<Position>>();
+		//	foreach (var pointCombination in allPointsCombinations)
+		//	{
+		//		List<Position> positionCombination = new List<Position>();
+		//		foreach (var point in pointCombination)
+		//		{
+		//			Position position = (Position)point.Point.Coordinates;
+		//			positionCombination.Add(position);
+		//		}
+		//		if(positionCombination.Any())
+		//			allPositionsCombinations.Add(positionCombination);
+		//	}
+
+		//	List<RouteModel> allPossibleRoutes = new List<RouteModel>();
+		//	foreach (var positionCombination in allPositionsCombinations)
+		//	{
+		//		RouteModel route = GetRouteBetweenTwoPoints(positionCombination);
+		//		if(DoesRouteMeetParameters(route, currentAdditionalDistance, currentAdditionalTime))
+		//			allPossibleRoutes.Add(route);
+		//	}
+
+		//	//var routesThatMeetParameters = allPossibleRoutes.Where(i => i.Distance <= maxAllowedRouteDistance && i.Time <= maxAllowedRouteTime);
+		//	int maxNumberOfWaypoints = allPossibleRoutes.Max(i => i.Waypoints.Length);
+		//	var routesWithMaxWaypoints = allPossibleRoutes.Where(i => i.Waypoints.Length == maxNumberOfWaypoints);
+		//	var routesOrderedByDistanceAndTime = routesWithMaxWaypoints.OrderBy(i => i.Time).ThenBy(i => i.Distance);
+
+		//	this.resultRoute = routesOrderedByDistanceAndTime.Take(1).SingleOrDefault();
+  //      }
+
+		protected override void ProcessAvailablePoints(List<LocalizationPointDto> availablePoints, double currentAdditionalDistance, double currentAdditionalTime, int? stepSize = null)
+		{
+			var pointsWithoutAggregated = availablePoints.Where(x => x.StaticScore == 0).ToList();
+			var allPointsCombinations = GetPowerSet(pointsWithoutAggregated);
+
+			ConcurrentBag<List<Position>> allPositionsCombinations = new ConcurrentBag<List<Position>>();
+			Parallel.ForEach(allPointsCombinations, (pointCombination) =>
 			{
 				List<Position> positionCombination = new List<Position>();
 				foreach (var point in pointCombination)
@@ -27,25 +64,27 @@ namespace Router
 					Position position = (Position)point.Point.Coordinates;
 					positionCombination.Add(position);
 				}
-				if(positionCombination.Any())
+				if (positionCombination.Any())
 					allPositionsCombinations.Add(positionCombination);
-			}
+			});
 
-			List<RouteModel> allPossibleRoutes = new List<RouteModel>();
-			foreach (var positionCombination in allPositionsCombinations)
+
+			ConcurrentBag<RouteModel> allPossibleRoutes = new ConcurrentBag<RouteModel>();
+			Parallel.ForEach(allPositionsCombinations, (positionCombination) =>
 			{
 				RouteModel route = GetRouteBetweenTwoPoints(positionCombination);
-				if(DoesRouteMeetParameters(route, currentAdditionalDistance, currentAdditionalTime))
+				if (DoesRouteMeetParameters(route, currentAdditionalDistance, currentAdditionalTime))
 					allPossibleRoutes.Add(route);
-			}
+			});
 
 			//var routesThatMeetParameters = allPossibleRoutes.Where(i => i.Distance <= maxAllowedRouteDistance && i.Time <= maxAllowedRouteTime);
 			int maxNumberOfWaypoints = allPossibleRoutes.Max(i => i.Waypoints.Length);
-			var routesWithMaxWaypoints = allPossibleRoutes.Where(i => i.Waypoints.Length == maxNumberOfWaypoints);
+			var routesWithMaxWaypoints = allPossibleRoutes.Where(i => i.Waypoints.Length == maxNumberOfWaypoints).ToList();
 			var routesOrderedByDistanceAndTime = routesWithMaxWaypoints.OrderBy(i => i.Time).ThenBy(i => i.Distance);
 
 			this.resultRoute = routesOrderedByDistanceAndTime.Take(1).SingleOrDefault();
-        }
+		}
+
 
 		private IEnumerable<IEnumerable<T>> GetPowerSet<T>(List<T> list)
 		{

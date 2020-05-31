@@ -113,7 +113,7 @@ namespace ViewModel
             double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin) * 60;
             double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
 
-            var router = new Router.Router(startingPosition, endingPosition, additionalDistance, additionalTime);
+            var router = new Router.RouterOptimalBruteForce(startingPosition, endingPosition, additionalDistance, additionalTime);
             Router.Model.RouteModel route = router.GetRoute(this.UserInputData.UseAggregatedPoints);
             Polyline polyline = this.GetFromMultiPoint(route.MultiPoint, "Blue", 6);
             this.Polylines.Add(polyline);

@@ -140,7 +140,7 @@ namespace ViewModel
             }
 			catch (Exception)
 			{
-                this.UserInputData.ProcessingTime = "Wystąpił błąd podczas wyznaczania trasy. Spróbuj ponownie.";
+                this.UserInputData.ProcessingTime = "Wystąpił błąd. Spróbuj ponownie.";
 			}
         }
         private bool CanCalculateRoute(object obj)

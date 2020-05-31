@@ -102,39 +102,46 @@ namespace ViewModel
         }
         private void CalculateRouteExecute()
         {
-            // TODO: this one line below does not seem to work
-            this.UserInputData.ProcessingTime = "During processing";
-            var watch = new Stopwatch();
-            watch.Start();
-            this.Polylines.Clear();
-            var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
-            var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
-            
-            double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin) * 60;
-            double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
+            try
+            {
+                // TODO: this one line below does not seem to work
+                this.UserInputData.ProcessingTime = "During processing";
+                var watch = new Stopwatch();
+                watch.Start();
+                this.Polylines.Clear();
+                var startingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.StartingPoint);
+                var endingPosition = Router.APIHelpers.NominatimAPIHelper.GetPositionForAddress(this.UserInputData.EndingPoint);
 
-            var router = new Router.RouterOptimalBruteForce(startingPosition, endingPosition, additionalDistance, additionalTime);
-            Router.Model.RouteModel route = router.GetRoute(this.UserInputData.UseAggregatedPoints);
-            Polyline polyline = this.GetFromMultiPoint(route.MultiPoint, "Blue", 6);
-            this.Polylines.Add(polyline);
-            this.UserInputData.ResultDistanceKm = (route.Distance / 1000).ToString();
-            this.UserInputData.ResultTimeHMin = GetHoursMinutesFromSeconds(route.Time);
-            this.UserInputData.ResultAdditionalStops = (route.Waypoints.Length - 2).ToString();
+                double additionalTime = double.Parse(this.UserInputData.AdditionalTimeMin) * 60;
+                double additionalDistance = double.Parse(this.UserInputData.AdditionalDistanceKm) * 1000;
 
-            Router.Model.RouteModel referenceRoute = router.ReferenceRoute;
-            Polyline polylineReference = this.GetFromMultiPoint(referenceRoute.MultiPoint, "Red", 3);
-            this.Polylines.Add(polylineReference);
-            this.UserInputData.ReferenceDistanceKm = (referenceRoute.Distance / 1000).ToString();
-            this.UserInputData.ReferenceTimeHMin = GetHoursMinutesFromSeconds(referenceRoute.Time);
+                var router = new Router.RouterOptimalBruteForce(startingPosition, endingPosition, additionalDistance, additionalTime);
+                Router.Model.RouteModel route = router.GetRoute(this.UserInputData.UseAggregatedPoints);
+                Polyline polyline = this.GetFromMultiPoint(route.MultiPoint, "Blue", 6);
+                this.Polylines.Add(polyline);
+                this.UserInputData.ResultDistanceKm = (route.Distance / 1000).ToString();
+                this.UserInputData.ResultTimeHMin = GetHoursMinutesFromSeconds(route.Time);
+                this.UserInputData.ResultAdditionalStops = (route.Waypoints.Length - 2).ToString();
 
-            List<PointItem> pointItemsRoute = this.GetFromRouteModel(route);
-            this.PushpinsRoute.Clear();
-            foreach (var pointItem in pointItemsRoute)
-            {                
-                this.PushpinsRoute.Add(pointItem);
+                Router.Model.RouteModel referenceRoute = router.ReferenceRoute;
+                Polyline polylineReference = this.GetFromMultiPoint(referenceRoute.MultiPoint, "Red", 3);
+                this.Polylines.Add(polylineReference);
+                this.UserInputData.ReferenceDistanceKm = (referenceRoute.Distance / 1000).ToString();
+                this.UserInputData.ReferenceTimeHMin = GetHoursMinutesFromSeconds(referenceRoute.Time);
+
+                List<PointItem> pointItemsRoute = this.GetFromRouteModel(route);
+                this.PushpinsRoute.Clear();
+                foreach (var pointItem in pointItemsRoute)
+                {
+                    this.PushpinsRoute.Add(pointItem);
+                }
+                watch.Stop();
+                this.UserInputData.ProcessingTime = $"{watch.Elapsed.Minutes} min {watch.Elapsed.Seconds} sec";
             }
-            watch.Stop();
-            this.UserInputData.ProcessingTime = $"{watch.Elapsed.Minutes} min {watch.Elapsed.Seconds} sec";
+			catch (Exception)
+			{
+                this.UserInputData.ProcessingTime = "Wystąpił błąd podczas wyznaczania trasy. Spróbuj ponownie.";
+			}
         }
         private bool CanCalculateRoute(object obj)
         {

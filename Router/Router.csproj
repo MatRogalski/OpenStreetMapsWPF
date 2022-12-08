@@ -9,7 +9,7 @@
     <PackageReference Include="GeoJSON.Net" Version="1.2.15" />
     <PackageReference Include="GeoJSON.Net.Contrib.MsSqlSpatial" Version="0.3.5" />
     <PackageReference Include="Microsoft.SqlServer.Types" Version="14.0.1016.290" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Nominatim.API" Version="1.5.2" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
     <PackageReference Include="XAML.MapControl" Version="5.1.0" />
